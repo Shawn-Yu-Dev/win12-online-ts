@@ -1,0 +1,17 @@
+web.config
+node_modules/
+dist/
+.vscode/
+.idea/
+
+.claude/
+
+.DS_Store
+
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
