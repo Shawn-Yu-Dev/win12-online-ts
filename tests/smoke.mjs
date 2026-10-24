@@ -89,6 +89,15 @@ try {
   const stoppedTime = await page.locator('#timer').textContent();
   await page.waitForTimeout(1100);
   assert.equal(await page.locator('#timer').textContent(), stoppedTime);
+
+  const redirectPage = await context.newPage();
+  await redirectPage.goto(`${baseUrl}/index.html?to=desktop`, {
+    waitUntil: 'domcontentloaded',
+  });
+  await redirectPage.waitForURL(/desktop\.html$/, { timeout: 15000 });
+  assert.match(redirectPage.url(), /desktop\.html$/);
+  await redirectPage.close();
+
   assert.deepEqual(pageErrors, []);
 } finally {
   await browser.close();

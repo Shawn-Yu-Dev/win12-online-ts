@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/unit/*.test.mjs",
-    "test:smoke": "node tests/smoke.mjs"
+    "test:smoke": "node tests/smoke.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run typecheck && npm test"
   },
   "dependencies": {
     "jquery": "^3.7.1"
@@ -19,6 +22,7 @@
     "@types/jquery": "^3.5.34",
     "@types/node": "^24.0.0",
     "playwright": "^1.64.1",
+    "prettier": "^3.9.10",
     "typescript": "^5.9.3",
     "vite": "^7.3.7"
   }

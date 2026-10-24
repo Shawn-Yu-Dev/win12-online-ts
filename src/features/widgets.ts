@@ -436,7 +436,7 @@ export function widgetsMove(elt, e) {
     bind: () => {
       $('.wg.nowplaying:not(.template) .nowplaying-file')
         .off('change.nowplaying')
-        .on('change.nowplaying', function () {
+        .on('change.nowplaying', function (this: HTMLInputElement) {
           if (this.files && this.files[0]) {
             widgets.nowplaying.loadFile(this.files[0]);
           }
@@ -446,7 +446,7 @@ export function widgetsMove(elt, e) {
 
       $('.wg.nowplaying:not(.template) .nowplaying-progress')
         .off('input.nowplaying')
-        .on('input.nowplaying', function () {
+        .on('input.nowplaying', function (this: HTMLInputElement) {
           if (
             !widgets.nowplaying.audio ||
             !isFinite(widgets.nowplaying.audio.duration)
@@ -962,7 +962,9 @@ export function widgetsMove(elt, e) {
   function applyNowPlayingDockPinFix() {
     if (!widgets || !widgets.nowplaying) return;
 
-    $('.wg.toolbar.nowplaying, .nowplaying.np-dock-nuclear').each(function () {
+    $('.wg.toolbar.nowplaying, .nowplaying.np-dock-nuclear').each(function (
+      this: HTMLElement,
+    ) {
       const dock = $(this);
 
       dock.addClass('np-dock-nuclear');
@@ -1132,7 +1134,7 @@ export function widgetsMove(elt, e) {
     if (typeof original !== 'function' || original._nowplayingCreateWrapped)
       return;
 
-    const wrapped = function (arg) {
+    const wrapped = function (this: unknown, arg) {
       const result = original.apply(this, arguments);
 
       if (arg === 'nowplaying') {

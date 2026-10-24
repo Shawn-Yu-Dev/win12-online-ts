@@ -271,7 +271,7 @@ export function setupGlobalKey() {
   });
 }
 
-/** Startup work that used to be top-level in desktop.js. */
+/** Startup work that used to live in the classic desktop.js entry. */
 export function initStartup(): void {
   initAutoUpdate();
   initPwa();

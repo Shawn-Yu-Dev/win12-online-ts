@@ -385,7 +385,7 @@ let deltaLeft = 0,
   filty = 'none',
   bfLeft = 0,
   bfTop = 0;
-export function win_move(e: any) {
+export function win_move(this: HTMLElement, e: any) {
   let cx, cy;
   if (e.type == 'touchmove') {
     ((cx = e.targetTouches[0].clientX), (cy = e.targetTouches[0].clientY));

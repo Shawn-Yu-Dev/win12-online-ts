@@ -7,7 +7,7 @@
  *   整块原样注入可以保证重建出来的 DOM 与原来完全一致。
  *
  * 注意：这里不能出现 <script> —— 经 insertAdjacentHTML 注入的脚本不会执行。
- *   Edge 收藏栏原本内联在此处的 add_save() 已移至 scripts/edge-bookmarks.js。
+ *   Edge 收藏栏原本内联在此处的 add_save() 已移至 src/scripts/edge-bookmarks.ts。
  *   <style> 不受影响，注入后照常生效，故保留原位。
  */
 export const windowMarkup = `	<div class="window defender" data-min-width="800" style="width: max(800px, 70%)">

@@ -1,4 +1,5 @@
 import { $ } from '../core/dom';
+import { withTimeout } from '../core/async';
 import { state } from '../core/state';
 import { shownotice } from './notices';
 
@@ -14,21 +15,11 @@ export function showStartupNoticeOnce() {
   shownotice('about');
 }
 
-async function withLoginBridgeTimeout(promise, message) {
-  let timeoutId;
-  try {
-    return await Promise.race([
-      Promise.resolve(promise),
-      new Promise((resolve, reject) => {
-        timeoutId = setTimeout(
-          () => reject(new Error(message)),
-          LOGIN_BRIDGE_TIMEOUT_MS,
-        );
-      }),
-    ]);
-  } finally {
-    clearTimeout(timeoutId);
-  }
+function withLoginBridgeTimeout<T>(
+  promise: PromiseLike<T> | T,
+  message: string,
+): Promise<T> {
+  return withTimeout(promise, LOGIN_BRIDGE_TIMEOUT_MS, message);
 }
 
 export function isNativeLoginEnvironment() {

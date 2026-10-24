@@ -49,11 +49,11 @@ localStorage.getItem(key) 与前者配合使用，以读取存储信息
 stop(event) 停止事件向父级传递事件（停止冒泡），event 变量照抄。可使祖先元素接受不到发生的对应事件。
 
 showcm(event, id, arg) 显示右键菜单，使用方法：oncontextmenu="return showcm(event,'标识',arg);"，
-	参考 desktop.js 中 cms 中的写法，需提前在 cms 中定义提示内容及其标识符。showcm 带有 stop(event), 无需另加
+	参考 src/data/context-menus.ts 中 cms 的写法，需提前在 cms 中定义提示内容及其标识符。showcm 带有 stop(event), 无需另加
 openapp(name) 打开窗口，用法：openapp('程序（窗口）名称')，
 	程序（窗口）名称就是想要显示的窗口.window 的另一个类名，须设置 apps[程序（窗口）名称] 对象和 init 方法
 shownotice(name) 打开提示窗口，用法：shownotice('提示内容标识符')，
-	参考 desktop.js 中 nts 中的写法，需提前在 nts 对象中定义提示内容及其标识符
+	参考 src/data/notices.ts 中 nts 的写法，需提前在 nts 对象中定义提示内容及其标识符
 closenotice() 与前者配合，关闭提示窗口
 showwin(name) 显示窗口，除特殊用途外不建议使用，用法：showwin('窗口名称')，注意：窗口名称就是想要显示的窗口.window 的另一个类名
 hidewin(name) 关闭窗口，用法：hidewin('程序（窗口）名称')，注意：程序（窗口）名称就是想要显示的窗口.window 的另一个类名
@@ -62,37 +62,39 @@ toggletheme() 切换主题
 关于 App 添加：
 
 壹 常规 app
-	1. 界面与 (伪) 后端的开发，js 在 module/apps.js 中，css 和资源文件在 apps/style 和 apps/icons 中
-	2. 绘制图标，存储于 icon 中，注意后缀名，参考 data/app-icons.js 中 @icon 的说明
-	3. 在开始菜单 (@#startmenu-l>list) 中添加你的应用
+	1. 应用实现写在 src/apps/<app>.ts，并在 src/apps/index.ts 的 registerApps({...}) 中注册
+	2. 界面模板在 src/data/window-templates.ts，样式与资源在 apps/style 和 apps/icons 中
+	3. 绘制图标，存储于 icon 中，注意后缀名，参考 src/data/app-icons.ts 中 icon 的说明
+	4. 在开始菜单 (@#startmenu-l>list) 中添加你的应用
 
 贰 webapp，即使用 iframe 嵌套网页的应用：
 	1. 确保目标网页不阻止跨域嵌套，允许 iframe 嵌套
 	2. html 内容参考 @.window.bilibili.webapp
-	3. 在 module/apps.js 中写 createWebapp('你的 appid', '目标网址')，参考 @apps[bilibili]
-	4. 在 module/apps.js 中 @apps[webapps] 里补充 appid
+	3. 在 src/apps/<app>.ts 中调用 createWebapp('你的 appid', '目标网址')，参考 src/apps/bilibili.ts
+	4. 在 src/apps/webapps.ts 的 apps 列表中补充 appid
 
 叁 文件布局（数据与代码已分离，改东西前先看这里）
-	data/languages.js      语言代码表 langc
-	data/app-icons.js      图标映射 icon、不可最大化 nomax、不可最小化 nomin
-	data/context-menus.js  右键菜单注册表 cms（配合 showcm 使用）
-	data/notices.js        通知/对话框注册表 nts（配合 shownotice 使用）
-	data/dock-panels.js    任务栏弹出面板注册表 dps
-	data/tasks.js          任务管理器进程表 taskmgrTasks
-	scripts/i18n-boot.js   lang() / isTauriApp() 等启动期函数
-	scripts/edge-address.js Edge 地址栏输入分类与 URL 归一化
-	scripts/startup.js     本地模块就绪后启动 shell，不等待可选 CDN
-	scripts/terminal-eggs.js 终端彩蛋（matrix / snow / dance / starwars）
-	module/shared.js       apps.js 内部的共享实现（createHistoryStack / createWebapp）
-	styles/tokens.css      设计令牌（圆角尺度、时长、缓动）
+	src/data/languages.ts        语言代码表 langc
+	src/data/app-icons.ts        图标映射 icon、不可最大化 nomax、不可最小化 nomin
+	src/data/context-menus.ts    右键菜单注册表 cms（配合 showcm 使用）
+	src/data/notices.ts          通知/对话框注册表 nts（配合 shownotice 使用）
+	src/data/dock-panels.ts      任务栏弹出面板注册表 dps
+	src/data/tasks.ts            任务管理器进程表 taskmgrTasks
+	src/data/window-templates.ts 30 个应用窗口的 HTML 模板
+	src/core/i18n.ts             lang() / isTauriApp() 等启动期函数
+	src/scripts/edge-address.ts  Edge 地址栏输入分类与 URL 归一化
+	src/shell/startup.ts         本地模块就绪后启动 shell
+	src/scripts/terminal-eggs.ts 终端彩蛋（matrix / snow / dance / starwars）
+	src/apps/shared.ts           应用共享实现（createHistoryStack / createWebapp）
+	src/core/                     窗口、i18n、DOM、状态等核心逻辑
+	src/shell/                    桌面、任务栏、开始菜单、通知等壳层
+	styles/tokens.css            设计令牌（圆角尺度、时长、缓动）
 
-肆 脚本加载顺序是承重的，改 desktop.html 末尾的 script 顺序前务必读懂：
-	languages → i18n-boot → app-icons → context-menus → notices → dock-panels
-	→ tasks → edge-address → shared → apps → tauri_api → desktop.js → window → widget → tab → startup
-	原因：cms 与 nts 的值里写着 ${lang(...)} 和 ${isTauriApp()}，
-	在对象字面量**求值时**就会执行，所以必须晚于 i18n-boot；
-	而 desktop.js 的登录完成流程会通过 shownotice('about') 读取 nts，
-	所以 notices 仍必须早于 desktop.js。
+肆 模块加载顺序由 src/main.ts 控制，不再手工维护 classic script 顺序：
+	main.ts 依次安装 jQuery 全局、注册应用、安装 window 全局、初始化 DOM/壳层，最后启动 win12Start。
+	多页面入口各自通过 <script type="module"> 引入 src/entries/*.ts，Vite 负责打包与依赖图。
+	新增模块时请在 main.ts 或对应 entry 中显式 import，不要依赖隐式全局执行顺序。
+	注意：ES module 受 CORS 限制，构建产物必须通过 HTTP(S) 访问，不能直接 file:// 双击打开。
 
 伍 CSS 主题的坑：:root 里 25 个变量中有 22 个是主题相关的（:root.dark 会覆盖）。
 	不要拿 --text / --bg / --hr 去替换硬编码的 #000 / #fff / #ccc ——
@@ -3179,7 +3181,7 @@ toggletheme() 切换主题
         </div>
       </div>
     </div>
-    <!-- 30 个应用窗口的标记见 data/window-templates.js，由 scripts/mount-windows.js 在此处注入 -->
+    <!-- 30 个应用窗口的标记见 src/data/window-templates.ts，由 src/shell/mount-windows.ts 在此处注入 -->
     <div id="window-mount"></div>
 
     <script

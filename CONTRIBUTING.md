@@ -71,27 +71,33 @@
 1. 对于 HTML 文件的规定
 
    详见 `desktop.html` 开头的代码规范，务必认真阅读。其中包含：文件布局、
-   脚本加载顺序为何是承重的、CSS 主题变量的使用限制、以及如何运行回归测试。
+   CSS 主题变量的使用限制、全局函数约定与模块加载方式。
 
 2. 关于代码结构
 
-   数据与代码已经分离，改动前请先看 `desktop.html` 开头的「文件布局」一节：
+   数据与代码已经分离，改动前请先看 README 的「目录结构」与 `desktop.html` 开头的「文件布局」一节：
 
-   - 应用窗口的 HTML 在 `data/window-templates.js`，由 `scripts/mount-windows.js` 注入
-   - 右键菜单 `cms`、通知 `nts`、弹出面板 `dps` 等注册表在 `data/` 下
-   - 应用逻辑仍在 `module/apps.js`，跨应用复用的实现在 `module/shared.js`
+   - 应用窗口 HTML 在 `src/data/window-templates.ts`，由 `src/shell/mount-windows.ts` 注入
+   - 右键菜单 `cms`、通知 `nts`、弹出面板 `dps` 等注册表在 `src/data/` 下
+   - 应用逻辑在 `src/apps/*.ts`，由 `src/apps/index.ts` 注册，跨应用复用在 `src/apps/shared.ts`
+   - 需要暴露给内联 handler 的全局函数统一在 `src/globals.ts` 安装
+   - 新增纯逻辑时请优先抽成无 DOM 依赖的模块，并在 `tests/unit/` 补单元测试
 
-   工程笔记（含各项实测结论与踩过的坑）见 `docs/refactor-notes.md`。
+3. 提交前检查
 
-3. 提交前请运行回归测试
-
+   ```bash
+   npm run check
    ```
-   node tools/regress/run.mjs
+
+   涉及页面交互的改动，请再运行 Playwright smoke：
+
+   ```bash
+   npx playwright install chromium
+   npm run dev
+   BASE_URL=http://localhost:5173 npm run test:smoke
    ```
 
-   它会对比纯净 `main` 与你当前工作树的行为快照（29 个窗口的开关与最大最小化、
-   全部右键菜单与对话框、终端命令、逐元素计算样式、localStorage），
-   并列出所有差异。非预期的差异请在提交前解决。
+   非预期的差异请在提交前解决。
 
 4. 对 JS 文件的规定
    1. 请使用 [Prettier](https://prettier.io/) 格式化代码
