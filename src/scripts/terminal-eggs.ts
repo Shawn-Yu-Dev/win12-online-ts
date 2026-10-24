@@ -1,6 +1,6 @@
 import { $ } from '../core/dom';
 
-/* 终端彩蛋。从 desktop.js 的 runcmd 抽出 —— 这 4 个分支原本占了该函数 599 行中的约 280 行。
+/* 终端彩蛋。从 src/scripts/terminal.ts 的 runcmd 抽出 —— 这 4 个分支原本占了该函数 599 行中的约 280 行。
  * 每个彩蛋只依赖 inTerminal 与全局 jQuery，不闭包 runcmd 的任何其他局部变量。
  */
 export const terminalEggs = {
@@ -54,7 +54,7 @@ export const terminalEggs = {
       setTimeout(() => {
         clearInterval(interval);
         setTimeout(() => {
-          matrixContainer.fadeOut(500, function () {
+          matrixContainer.fadeOut(500, function (this: HTMLElement) {
             $(this).remove();
           });
         }, 500);
@@ -157,7 +157,7 @@ export const terminalEggs = {
       setTimeout(() => {
         clearInterval(snowInterval);
         // 让所有堆积的雪花缓慢消失
-        $('#snow-pile span').each(function (i) {
+        $('#snow-pile span').each(function (this: HTMLElement, i) {
           const $pile = $(this);
           setTimeout(() => {
             $pile.css({
@@ -168,7 +168,7 @@ export const terminalEggs = {
           }, Math.random() * 2000);
         });
         // 让飘落的雪花消失
-        $('#snow-container .snowflake').each(function (i) {
+        $('#snow-container .snowflake').each(function (this: HTMLElement, i) {
           const $flake = $(this);
           setTimeout(() => {
             $flake.css({
@@ -178,7 +178,7 @@ export const terminalEggs = {
           }, Math.random() * 2000);
         });
         setTimeout(() => {
-          $('#snow-container').fadeOut(1000, function () {
+          $('#snow-container').fadeOut(1000, function (this: HTMLElement) {
             $(this).remove();
           });
         }, 2500);
@@ -198,7 +198,7 @@ export const terminalEggs = {
         { transform: 'rotate(0deg) translate(0, 0)' },
       ];
 
-      windows.each(function () {
+      windows.each(function (this: HTMLElement) {
         const win = $(this);
         let danceCount = 0;
         const danceInterval = setInterval(() => {
@@ -295,7 +295,7 @@ export const terminalEggs = {
 
       // 30 秒后清理
       setTimeout(() => {
-        starWarsContainer.fadeOut(2000, function () {
+        starWarsContainer.fadeOut(2000, function (this: HTMLElement) {
           $(this).remove();
         });
       }, 30000);

@@ -210,7 +210,7 @@ export function hide_widgets() {
   }, 200);
 }
 const FLY_HIDDEN_LIST_KEY = 'control_status_fly_hidden_list';
-export function controlStatus(name) {
+export function controlStatus(this: HTMLElement, name) {
   if (this.classList.contains('active')) {
     this.classList.remove('active');
     if (name == 'wifi') {

@@ -81,7 +81,7 @@ export function hideTaskbarPreview() {
 }
 
 // Add hover events to taskbar items
-$(document).on('mouseenter', '#taskbar>a', function (e) {
+$(document).on('mouseenter', '#taskbar>a', function (this: HTMLElement, e) {
   const name = this.className.split(' ')[0];
   showTaskbarPreview(name, e);
 });
@@ -100,7 +100,7 @@ $(document).on('mouseleave', '#taskbar-preview', function () {
 });
 
 export function initTaskbarPreview(): void {
-  $(document).on('mouseenter', '#taskbar>a', function (e) {
+  $(document).on('mouseenter', '#taskbar>a', function (this: HTMLElement, e) {
     const name = this.className.split(' ')[0];
     showTaskbarPreview(name, e);
   });

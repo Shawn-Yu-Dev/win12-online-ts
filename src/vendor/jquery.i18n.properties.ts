@@ -1,6 +1,7 @@
 // @ts-nocheck
 /* jquery.i18n.properties 1.2.7, vendored as an ES module. */
 import $ from 'jquery';
+import { parseProperties } from '../core/properties';
 
 $.i18n = {};
 
@@ -361,75 +362,16 @@ function loadAndParseFile(filename, settings, nextFile) {
 
 /** Parse .properties files */
 function parseData(data, settings) {
-  var lines = data.split(/\r?\n/);
-  var unicodeRE = /(\\u.{4})/gi;
-  for (var i = 0, j = lines.length; i < j; i++) {
-    var line = lines[i];
-
-    // A logical .properties line may span several physical lines. Only an
-    // odd number of trailing backslashes continues the line; an even number
-    // represents escaped backslashes and therefore ends it.
-    var trailingBackslashes = 0;
-    for (var b = line.length - 1; b >= 0 && line.charAt(b) == '\\'; b--) {
-      trailingBackslashes++;
-    }
-    while (trailingBackslashes % 2 == 1) {
-      line = line.substring(0, line.length - 1);
-      if (++i >= j) break;
-      line += lines[i].replace(/^[ \t\f]+/, '');
-
-      trailingBackslashes = 0;
-      for (b = line.length - 1; b >= 0 && line.charAt(b) == '\\'; b--) {
-        trailingBackslashes++;
+  if (settings.mode == 'map' || settings.mode == 'both') {
+    var parsed = parseProperties(data);
+    for (var name in parsed) {
+      if (!Object.prototype.hasOwnProperty.call(parsed, name)) continue;
+      if (settings.namespace) {
+        $.i18n.map[settings.namespace][name] = parsed[name];
+      } else {
+        $.i18n.map[name] = parsed[name];
       }
     }
-
-    line = line.trim();
-    if (line.length > 0 && line.charAt(0) != '#' && line.charAt(0) != '!') {
-      // skip comments
-      // Split on the first unescaped '=' or ':'. Escaped delimiters are
-      // common in HTML attributes and URLs inside translation values.
-      var separator = -1;
-      var escaped = false;
-      for (var p = 0; p < line.length; p++) {
-        var ch = line.charAt(p);
-        if (ch == '\\') {
-          escaped = !escaped;
-          continue;
-        }
-        if (!escaped && (ch == '=' || ch == ':')) {
-          separator = p;
-          break;
-        }
-        escaped = false;
-      }
-
-      if (line.length > 0) {
-        /** Process key & value */
-        var name = decodeURI(
-          separator == -1 ? line : line.substring(0, separator),
-        ).trim();
-        var value = separator == -1 ? '' : line.substring(separator + 1);
-        value = value.trim();
-
-        /** Mode: bundle keys in a map */
-        if (settings.mode == 'map' || settings.mode == 'both') {
-          // handle unicode chars possibly left out
-          var unicodeMatches = value.match(unicodeRE);
-          if (unicodeMatches) {
-            unicodeMatches.forEach(function (match) {
-              value = value.replace(match, unescapeUnicode(match));
-            });
-          }
-          // add to map
-          if (settings.namespace) {
-            $.i18n.map[settings.namespace][name] = value;
-          } else {
-            $.i18n.map[name] = value;
-          }
-        }
-      } // END: if(pair.length > 0)
-    } // END: skip comments
   }
   settings.filesLoaded += 1;
 }
@@ -454,19 +396,5 @@ $.i18n.normaliseLanguageCode = function (settings) {
   }
   return lang;
 };
-
-/** Unescape unicode chars ('\u00e3') */
-function unescapeUnicode(str) {
-  // unescape unicode codes
-  var codes = [];
-  var code = parseInt(str.substr(2), 16);
-  if (code >= 0 && code < Math.pow(2, 16)) {
-    codes.push(code);
-  }
-  // convert codes to text
-  return codes.reduce(function (acc, val) {
-    return acc + String.fromCharCode(val);
-  }, '');
-}
 
 export default $;

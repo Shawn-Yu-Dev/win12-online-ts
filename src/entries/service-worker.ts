@@ -4,22 +4,21 @@ const dynamicHosts = [
   'win12server.freehk.svipss.top',
   'assets.msn.cn',
 ];
-const cacheName = 'def';
-const protectedPaths = [
+export const cacheName = 'def';
+export const protectedPaths = [
   '/fonts/',
   '/img/',
   '/apps/icons/',
-  '/scripts/jq.min.js',
   '/bootstrap-icons.css',
 ];
 
-function isDynamicRequest(url: URL): boolean {
+export function isDynamicRequest(url: URL): boolean {
   return dynamicHosts.some((host) =>
     `${url.host}${url.pathname}`.includes(host),
   );
 }
 
-function isProtected(url: string): boolean {
+export function isProtected(url: string): boolean {
   let pathname: string;
   try {
     pathname = new URL(url).pathname;
@@ -29,7 +28,7 @@ function isProtected(url: string): boolean {
   return protectedPaths.some((path) => pathname.includes(path));
 }
 
-async function updateCache(force = false): Promise<void> {
+export async function updateCache(force = false): Promise<void> {
   const keys = await caches.keys();
   if (!keys.includes(cacheName)) return;
   const cache = await caches.open(cacheName);

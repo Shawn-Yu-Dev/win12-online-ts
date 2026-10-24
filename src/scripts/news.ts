@@ -10,13 +10,42 @@ import { apps } from '../core/app-registry';
 const wait = (duration) =>
   new Promise((resolve) => setTimeout(resolve, duration));
 
+interface NewsItem {
+  title: string;
+  url: string;
+  image: string;
+  author?: string;
+  category?: string;
+  hint?: string;
+}
+
+interface NewsSuccess {
+  status: 'success';
+  data: NewsItem[];
+}
+
+interface NewsError {
+  status: 'error';
+  message?: string;
+  error?: unknown;
+}
+
+type NewsResult = NewsSuccess | NewsError;
+
+function describeNewsError(error: unknown, message?: string): string {
+  if (message) return message;
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  return '未知';
+}
+
 export const news = {
   sources: [
     {
       name: '东方网',
       description: '东方网新闻头条（使用公益 API）',
       url: 'https://tools.mgtv100.com/external/v1/toutiao/index',
-      async getData() {
+      async getData(): Promise<NewsResult> {
         try {
           const response = await fetch(this.url);
           const data = await response.json();
@@ -51,7 +80,7 @@ export const news = {
       name: '知乎每日新闻',
       description: '知乎每日新闻（使用公益 API）',
       url: 'https://v.api.aa1.cn/api/zhihu-news/index.php?aa1=xiarou',
-      async getData() {
+      async getData(): Promise<NewsResult> {
         try {
           const response = await fetch(this.url);
           const data = await response.json();
@@ -113,12 +142,7 @@ export const news = {
         false,
         '载入失败',
         '无法载入新闻。\n请检查你的网络设置，或更改新闻源并稍后再试。',
-        '详细信息：' +
-          (data.error
-            ? data.error.message
-            : data.message
-              ? data.message
-              : '未知'),
+        '详细信息：' + describeNewsError(data.error, data.message),
       );
       return;
     }

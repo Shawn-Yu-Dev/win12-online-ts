@@ -82,7 +82,7 @@ const whiteboard = {
       apps.whiteboard.ctx.lineWidth = 8;
     }
   },
-  changePen: function () {
+  changePen: function (this: HTMLElement) {
     const pens = $('#win-whiteboard>.toolbar>.tools>*');
     for (const elt of pens) {
       elt.classList.remove('active');

@@ -243,7 +243,7 @@ window.onkeydown = (evt) => {
 
 // Add click handlers for options
 for (const option of document.querySelectorAll('.option')) {
-  option.addEventListener('click', function () {
+  option.addEventListener('click', function (this: HTMLElement) {
     const newValue = toggleOption(this);
     const optionId = this.getAttribute('data-option');
     if (optionId) {

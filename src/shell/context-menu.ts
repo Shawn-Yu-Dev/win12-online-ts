@@ -51,7 +51,7 @@ var use_mic_voice = true;
 
 // 渲染右键菜单。原先这段逻辑在 showcm 里被完整复制了两遍（「已有菜单打开」与
 // 「直接打开」两条路径），除缩进外只有一处差别，而那处差别是个 bug：
-// 已打开路径写的是 `ret = item(arg)`（未声明），desktop.js 是 'use strict'，
+// 已打开路径写的是 `ret = item(arg)`（未声明），原 classic desktop.js 是 'use strict'，
 // 于是「在已有菜单打开时再右键一个函数型菜单项」必抛 ReferenceError。
 // 受影响的是 cms 里四个函数型条目：desktop.icon / smapp / smlapp / explorer.file。
 // 同路径还有一句 `arg.event = e`，全仓库无人读取，且 arg 可能为 null，一并移除。

@@ -30,7 +30,7 @@ export const m_tab = {
     } else if (ev.type.match('touch')) {
       deltaLeft = ev.touches[0].clientX;
     }
-    function move_f(e) {
+    function move_f(this: HTMLElement, e) {
       let x;
       if (e.type.match('mouse')) {
         x = e.clientX;
@@ -66,7 +66,7 @@ export const m_tab = {
     page.onmousemove = move_f.bind(t);
     page.ontouchmove = move_f.bind(t);
 
-    function up_f(e) {
+    function up_f(this: HTMLElement, e) {
       page.onmousemove = null;
       page.onmouseup = null;
       page.ontouchmove = null;
