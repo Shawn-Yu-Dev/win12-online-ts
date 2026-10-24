@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Windows 12 扫雷</title>
+    <style>
+      :root {
+        --win-bg: #e3e9f3;
+        --panel-bg: rgba(255, 255, 255, 0.75);
+        --accent: #0078d4;
+        --cell-unrevealed: #ffffff;
+        --cell-revealed: rgba(0, 0, 0, 0.05);
+        --border-color: rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        color: #333;
+      }
+
+      /* 游戏主容器 */
+      .container {
+        background: var(--panel-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        display: inline-block;
+      }
+
+      /* 状态栏 */
+      .game-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 12px 18px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      #timer,
+      #mines-left {
+        font-family: 'Consolas', monospace;
+        font-size: 1.4em;
+        background: #202020;
+        color: #00ff41;
+        padding: 4px 12px;
+        border-radius: 6px;
+        min-width: 50px;
+        text-align: center;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+      }
+
+      .face-button {
+        font-size: 1.6em;
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        cursor: pointer;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .face-button:hover {
+        transform: scale(1.1);
+        background: #fdfdfd;
+      }
+      .face-button:active {
+        transform: scale(0.9);
+      }
+
+      /* 棋盘网格 */
+      .grid {
+        display: grid;
+        gap: 2px;
+        background: rgba(0, 0, 0, 0.08);
+        padding: 4px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        margin: 0 auto;
+      }
+
+      .cell {
+        width: 30px;
+        height: 30px;
+        background: var(--cell-unrevealed);
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+        transition: all 0.1s;
+        box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+
+      .cell:hover:not(.revealed) {
+        background: #f0f7ff;
+        outline: 2px solid var(--accent);
+        z-index: 1;
+        transform: translateY(-1px);
+      }
+
+      .cell.revealed {
+        background: var(--cell-revealed);
+        box-shadow: none;
+        cursor: default;
+      }
+
+      /* 数字颜色映射 */
+      .cell[data-val='1'] {
+        color: #0078d4;
+      }
+      .cell[data-val='2'] {
+        color: #107c10;
+      }
+      .cell[data-val='3'] {
+        color: #d13438;
+      }
+      .cell[data-val='4'] {
+        color: #002050;
+      }
+      .cell[data-val='5'] {
+        color: #841111;
+      }
+
+      .cell.mine {
+        background: #ff5f57 !important;
+      }
+      .cell.flagged::before {
+        content: '🚩';
+        font-size: 0.9em;
+      }
+
+      /* 控制区 */
+      .difficulty-selector {
+        margin-top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      .win12-button {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .win12-button:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        transform: translateY(-1px);
+      }
+
+      .custom-difficulty {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr) auto;
+        gap: 10px;
+        align-items: flex-end;
+        background: rgba(0, 0, 0, 0.03);
+        padding: 15px;
+        border-radius: 10px;
+      }
+
+      .custom-difficulty label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 4px;
+        display: block;
+      }
+      .custom-difficulty input {
+        width: 100%;
+        padding: 6px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      /* 弹窗 */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+      }
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        max-width: 300px;
+      }
+      .modal-content h2 {
+        margin-top: 0;
+        color: #111;
+      }
+      .close {
+        display: none;
+      } /* 简化 UI，不需要小叉叉 */
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="game-info">
+        <div id="mines-left">0</div>
+        <button class="face-button" id="reset-button">🙂</button>
+        <div id="timer">0</div>
+      </div>
+      <div class="grid" id="grid"></div>
+
+      <div class="difficulty-selector">
+        <div class="btn-group">
+          <button class="win12-button" data-difficulty="easy">
+            简单 (9x9, 10 雷)
+          </button>
+          <button class="win12-button" data-difficulty="medium">
+            中等 (16x16, 40 雷)
+          </button>
+          <button class="win12-button" data-difficulty="hard">
+            困难 (16x30, 99 雷)
+          </button>
+        </div>
+        <div class="custom-difficulty">
+          <div>
+            <label>行数：</label
+            ><input
+              type="number"
+              id="custom-rows"
+              value="16"
+              min="5"
+              max="30"
+            />
+          </div>
+          <div>
+            <label>列数：</label
+            ><input
+              type="number"
+              id="custom-cols"
+              value="16"
+              min="5"
+              max="30"
+            />
+          </div>
+          <div>
+            <label>雷数：</label
+            ><input
+              type="number"
+              id="custom-mines"
+              value="40"
+              min="1"
+              max="899"
+            />
+          </div>
+          <button class="win12-button" id="custom-button">应用</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <h2 id="modal-message">游戏结束</h2>
+        <button
+          class="win12-button"
+          id="restart-button"
+          style="width: 100%; background: var(--accent); color: white"
+        >
+          重新开始
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="../src/entries/minesweeper.ts"></script>
+  </body>
+</html>
