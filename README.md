@@ -27,15 +27,17 @@
 
 本仓库是对开源项目 **[Win12 Online](https://github.com/win12-online/win12)** 的 **TypeScript + Vite 重构实验**。
 
-| 项目 | 说明 |
-|------|------|
+| 项目       | 说明                                                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------------------------ |
 | **原项目** | [win12-online/win12](https://github.com/win12-online/win12) — 成熟的网页版 Windows 12 模拟器（约 7k+ stars） |
-| **本仓库** | 使用 TypeScript、Vite 重新组织与类型化桌面 Shell，目标是提升可维护性与工程化 |
-| **关系** | 基于原项目资源与思路进行重构，**不是官方 fork**，目前仍在早期阶段 |
+| **本仓库** | 使用 TypeScript、Vite 重新组织与类型化桌面 Shell，目标是提升可维护性与工程化                                 |
+| **关系**   | 基于原项目资源与思路进行重构，**不是官方 fork**，目前仍在早期阶段                                            |
 
 > [!IMPORTANT]
-> 想要完整、稳定的在线体验，请优先使用原项目：  
-> **在线体验**：https://win12-online.github.io/win12/boot.html  
+> 想要完整、稳定的在线体验，请优先使用原项目：
+>
+> **在线体验**：https://win12-online.github.io/win12/boot.html
+>
 > **原仓库**：https://github.com/win12-online/win12
 
 ### 本仓库目标
@@ -149,10 +151,10 @@ desktop.html / boot.html / ...  # 多页面入口
 
 ## 相关链接
 
-| 资源 | 链接 |
-|------|------|
-| 本仓库 | https://github.com/Shawn-Yu-Dev/win12-online-ts |
-| 原项目 | https://github.com/win12-online/win12 |
-| 原项目在线体验 | https://win12-online.github.io/win12/boot.html |
-| 原项目桌面版 | https://github.com/win12-online/win12-desktop |
+| 资源                   | 链接                                            |
+| ---------------------- | ----------------------------------------------- |
+| 本仓库                 | https://github.com/Shawn-Yu-Dev/win12-online-ts |
+| 原项目                 | https://github.com/win12-online/win12           |
+| 原项目在线体验         | https://win12-online.github.io/win12/boot.html  |
+| 原项目桌面版           | https://github.com/win12-online/win12-desktop   |
 | 本仓库 Pages（启用后） | https://shawn-yu-dev.github.io/win12-online-ts/ |
