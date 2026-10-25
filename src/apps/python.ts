@@ -133,7 +133,7 @@ Type "help", "copyright", "credits" or "license" for more information.
   run: () => {
     if (apps.python.pyodide) {
       const input = $('#win-python>pre>input');
-      const _code = input.val();
+      const _code = input.val() as string;
       if (_code == 'exit()') {
         hidewin('python');
         input.val('');

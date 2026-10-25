@@ -1,5 +1,6 @@
 import { $ } from '../core/dom';
 import { dps } from '../data/dock-panels';
+import type { ContextMenuArg } from '../core/app-types';
 
 export let dpt: unknown = null;
 export let isOnDp = false;
@@ -10,7 +11,7 @@ export function playWindowsBackground(): void {
   audio.play();
 }
 
-export function showdp(e, cl, arg) {
+export function showdp(e: HTMLElement, cl: string, arg: ContextMenuArg): void {
   if ($('#dp').hasClass('show-begin')) {
     $('#dp').removeClass('show');
     setTimeout(() => {
@@ -61,7 +62,7 @@ export function showdp(e, cl, arg) {
     }
   }, 200);
 }
-export function hidedp(force = false) {
+export function hidedp(force = false): void {
   setTimeout(() => {
     if (isOnDp && !force) {
       return;

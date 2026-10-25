@@ -1,9 +1,16 @@
 import { $, stop } from '../core/dom';
 import { cms } from '../data/context-menus';
 import { state } from '../core/state';
+import type { ContextMenuArg } from '../core/app-types';
+
+/** Events reaching the context menu may be native or created by jQuery. */
+export interface ContextMenuPoint {
+  clientX: number;
+  clientY: number;
+}
 
 // 给桌面上的图标加右键菜单
-export function addMenu() {
+export function addMenu(): void {
   var parentDiv = $('#desktop')[0];
   // 必须是直接子 div：与 CSS 的 #desktop>div 一致，且用户自建项本身就是顶层 <div class="b">。
   // 原写法是 '#div'（id 选择器），永远匹配 0 个元素，整个循环从不执行。
@@ -15,7 +22,7 @@ export function addMenu() {
       continue;
     }
     let div = childDivs[i];
-    div.setAttribute('iconIndex', i - 5);
+    div.setAttribute('iconIndex', String(i - 5));
     div.addEventListener(
       'contextmenu',
       (event) => {
@@ -55,7 +62,11 @@ var use_mic_voice = true;
 // 于是「在已有菜单打开时再右键一个函数型菜单项」必抛 ReferenceError。
 // 受影响的是 cms 里四个函数型条目：desktop.icon / smapp / smlapp / explorer.file。
 // 同路径还有一句 `arg.event = e`，全仓库无人读取，且 arg 可能为 null，一并移除。
-export function renderContextMenu(e, cl, arg) {
+export function renderContextMenu(
+  e: ContextMenuPoint,
+  cl: string,
+  arg: ContextMenuArg,
+): void {
   $('#cm').css('left', e.clientX);
   $('#cm').css('top', e.clientY);
   let h = '';
@@ -92,7 +103,11 @@ export function renderContextMenu(e, cl, arg) {
   }, 200);
 }
 
-export function showcm(e, cl, arg) {
+export function showcm(
+  e: ContextMenuPoint,
+  cl: string,
+  arg: ContextMenuArg,
+): void {
   // 已有菜单打开时，等它收起再重绘（原逻辑的 200ms 延时保持不变）
   if ($('#cm').hasClass('show-begin')) {
     setTimeout(() => {

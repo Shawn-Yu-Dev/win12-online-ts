@@ -1,4 +1,6 @@
-const browserLanguage = navigator.language || (navigator as any).userLanguage;
+const browserLanguage =
+  navigator.language ||
+  (navigator as Navigator & { userLanguage?: string }).userLanguage;
 const translations: Record<string, Record<string, string>> = {
   'zh-CN': {
     title: '404 Not Found - Windows 12 网页版',

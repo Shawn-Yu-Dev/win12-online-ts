@@ -1,11 +1,9 @@
 import { $ } from '../core/dom';
 
-declare const Big: any;
-
 export class Calculator {
   elt: string;
-  num1: any = null;
-  num2: any = null;
+  num1: BigNumber | null = null;
+  num2: BigNumber | null = null;
   keysContainer: string;
   operator = 0;
   preview = false;
@@ -19,11 +17,11 @@ export class Calculator {
     return ($(this.elt)[0] as HTMLInputElement).value;
   }
 
-  private setValue(value: string | number): void {
+  private setValue(value: string | number | BigNumber): void {
     ($(this.elt)[0] as HTMLInputElement).value = String(value);
   }
 
-  get_num(): any {
+  get_num(): BigNumber {
     return Big(this.value());
   }
 
@@ -111,7 +109,7 @@ export class Calculator {
     return false;
   }
 
-  private _calc(n1: any, n2: any, c: number): string | null {
+  private _calc(n1: BigNumber, n2: BigNumber, c: number): string | null {
     switch (c) {
       case 1:
         return n1.plus(n2).toString();
@@ -120,7 +118,7 @@ export class Calculator {
       case 3:
         return n1.times(n2).toString();
       case 4:
-        return n2 != 0 ? n1.div(n2).toString() : null;
+        return Number(n2.toString()) != 0 ? n1.div(n2).toString() : null;
       default:
         return null;
     }
@@ -133,5 +131,5 @@ export const widgetCalculator = new Calculator(
 );
 export const appCalculator = new Calculator('#calc-input', '#win-calc>.keyb');
 
-(window as any).appCalculator = appCalculator;
-(window as any).widgetCalculator = widgetCalculator;
+window.appCalculator = appCalculator;
+window.widgetCalculator = widgetCalculator;

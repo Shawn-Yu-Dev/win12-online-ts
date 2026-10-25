@@ -1,6 +1,6 @@
 import jquery from 'jquery';
 
-export const $: any = jquery;
+export const $: JQueryStatic = jquery;
 
 declare global {
   interface HTMLElement {
@@ -16,7 +16,7 @@ if (!HTMLElement.prototype.$$) {
 
 export const page = $('html')[0] as HTMLElement;
 
-export function stop(e: Event): false {
+export function stop(e: { stopPropagation(): void }): false {
   e.stopPropagation();
   return false;
 }

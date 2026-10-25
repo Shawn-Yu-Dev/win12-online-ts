@@ -59,7 +59,7 @@ const msstore = {
   init: () => {
     $('#win-msstore>.menu>list>a.home')[0].click();
   },
-  page: (name) => {
+  page: (name: string) => {
     $('#win-msstore>.page>.cnt.' + name).scrollTop(0);
     $('#win-msstore>.page>.cnt.show').removeClass('show');
     $('#win-msstore>.page>.cnt.' + name).addClass('show');

@@ -56,11 +56,11 @@ import { toggletheme } from '../shell/theme';
 import { setIcon, saveDesktop } from '../shell/desktop';
 
 const defender = {
-  init: () => {
-    return null;
+  init: (): void => {
+    return;
   },
   load: () => {
-    var chart = $('#chart')[0].getContext('2d'),
+    const chart = ($('#chart')[0] as HTMLCanvasElement).getContext('2d'),
       gradient = chart.createLinearGradient(0, 0, 0, 450);
     gradient.addColorStop(0, 'rgba(0, 199, 214, 0.32)');
     gradient.addColorStop(0.3, 'rgba(0, 199, 214, 0.1)');

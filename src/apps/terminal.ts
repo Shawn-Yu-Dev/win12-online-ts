@@ -69,7 +69,7 @@ Micrȯsoft Windows [版本 12.0.39035.7324]
         <pre style="display: flex"><span class="prompt">C:\\Windows\\System32> </span><input type="text" onkeyup="apps.terminal.handleKeyUp(event)"></pre>`);
     $('#win-terminal>pre>input').focus();
   },
-  handleKeyUp: (event) => {
+  handleKeyUp: (event: KeyboardEvent) => {
     const input = $('#win-terminal input');
     if (event.keyCode === 13) {
       // Enter
@@ -85,7 +85,7 @@ Micrȯsoft Windows [版本 12.0.39035.7324]
   run: () => {
     const elt = $('#win-terminal>pre.text-cmd')[0];
     const input = $('#win-terminal input');
-    const command = input.val().trim();
+    const command = (input.val() as string).trim();
 
     if (command !== '') {
       // Add command to history
@@ -109,7 +109,7 @@ Micrȯsoft Windows [版本 12.0.39035.7324]
     input.blur();
     input.focus();
   },
-  history: (direction) => {
+  history: (direction: string) => {
     const input = $('#win-terminal input');
 
     if (!apps.terminal.isViewingHistory) {

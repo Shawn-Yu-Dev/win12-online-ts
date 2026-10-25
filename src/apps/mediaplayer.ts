@@ -58,25 +58,29 @@ import { setIcon, saveDesktop } from '../shell/desktop';
 const mediaplayer = {
   _blobUrl: null,
   init: () => {},
-  open: (url, name, type) => {
+  open: (url: string, name: string, type: string) => {
     openapp('mediaplayer');
     apps.mediaplayer._blobUrl = url;
     $('.window.mediaplayer>.titbar>p').text(
       name || lang('媒体播放器', 'mediaplayer.name'),
     );
     if (type === 'video') {
-      $('#mediaplayer-video').attr('src', url).show()[0].load();
-      $('#mediaplayer-audio').hide()[0].pause();
+      (
+        $('#mediaplayer-video').attr('src', url).show()[0] as HTMLVideoElement
+      ).load();
+      ($('#mediaplayer-audio').hide()[0] as HTMLAudioElement).pause();
       $('.window.mediaplayer>.titbar>img').attr('src', 'icon/files/vidio.png');
     } else {
-      $('#mediaplayer-audio').attr('src', url).show()[0].load();
-      $('#mediaplayer-video').hide()[0].pause();
+      (
+        $('#mediaplayer-audio').attr('src', url).show()[0] as HTMLAudioElement
+      ).load();
+      ($('#mediaplayer-video').hide()[0] as HTMLVideoElement).pause();
       $('.window.mediaplayer>.titbar>img').attr('src', 'icon/files/music.png');
     }
   },
   close: () => {
-    $('#mediaplayer-video')[0].pause();
-    $('#mediaplayer-audio')[0].pause();
+    ($('#mediaplayer-video')[0] as HTMLVideoElement).pause();
+    ($('#mediaplayer-audio')[0] as HTMLAudioElement).pause();
     if (apps.mediaplayer._blobUrl) {
       URL.revokeObjectURL(apps.mediaplayer._blobUrl);
       apps.mediaplayer._blobUrl = null;

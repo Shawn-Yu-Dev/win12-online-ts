@@ -58,7 +58,7 @@ import { setIcon, saveDesktop } from '../shell/desktop';
 const pdfviewer = {
   _blobUrl: null,
   init: () => {},
-  open: (url, name) => {
+  open: (url: string, name: string) => {
     openapp('pdfviewer');
     apps.pdfviewer._blobUrl = url;
     $('#pdfviewer-frame').attr('src', url);

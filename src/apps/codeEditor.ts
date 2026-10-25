@@ -137,8 +137,8 @@ const codeEditor = {
     ini: 'INI',
     text: 'Text',
   },
-  init: () => {
-    return null;
+  init: (): void => {
+    return;
   },
   load: () => {
     ace.require('ace/ext/language_tools');
@@ -209,7 +209,11 @@ const codeEditor = {
     var tab = ed.session.getUseSoftTabs() ? '空格' : 'Tab';
     $('#code-status-tab').text(tab + ': ' + ed.session.getTabSize());
   },
-  open: (text, fileName, fileHandle) => {
+  open: (
+    text: string,
+    fileName: string,
+    fileHandle: FileSystemFileHandle | null,
+  ) => {
     apps.codeEditor._fileHandle = fileHandle || null;
     apps.codeEditor._dirty = false;
     openapp('code-editor');
@@ -242,7 +246,7 @@ const codeEditor = {
       shownotice('file-write-error');
     }
   },
-  setTheme: (theme) => {
+  setTheme: (theme: string) => {
     if (apps.codeEditor.editor) apps.codeEditor.editor.setTheme(theme);
   },
   toggleWrap: () => {
@@ -251,7 +255,7 @@ const codeEditor = {
       apps.codeEditor.editor.session.setUseWrapMode(apps.codeEditor._wrap);
     $('#code-wrap-btn').toggleClass('active', apps.codeEditor._wrap);
   },
-  changeFontSize: (delta) => {
+  changeFontSize: (delta: number) => {
     apps.codeEditor._fontSize = Math.max(
       10,
       Math.min(30, apps.codeEditor._fontSize + delta),

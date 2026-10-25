@@ -2,7 +2,7 @@ import { $ } from '../core/dom';
 import { icon } from '../data/app-icons';
 
 export function geticon(name: string): string {
-  return icon[name] || name + '.svg';
+  return (icon as Record<string, string>)[name] || name + '.svg';
 }
 
 export function syncTaskbarLayout(): void {

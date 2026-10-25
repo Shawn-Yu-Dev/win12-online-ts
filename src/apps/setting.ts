@@ -55,6 +55,29 @@ import { closeVideo } from '../core/video';
 import { toggletheme } from '../shell/theme';
 import { setIcon, saveDesktop } from '../shell/desktop';
 
+interface ThemeContentEntry {
+  type?: string;
+  name: string;
+  url: string;
+  path: string;
+}
+
+interface ThemeInfo {
+  bg: string;
+  color1?: string;
+  color2?: string;
+  href?: string;
+}
+
+interface AppUpdateInfo {
+  current_version?: string;
+  latest_version?: string;
+  published_at?: string;
+  latest_name?: string;
+  update_available?: boolean;
+  release_url?: string;
+}
+
 const setting = {
   init: () => {
     $('#win-setting>.menu>list>a.home')[0].click();
@@ -73,7 +96,7 @@ const setting = {
       savedColor,
     );
   },
-  page: (name) => {
+  page: (name: string) => {
     $('#win-setting>.page>.cnt.' + name).scrollTop(0);
     $('#win-setting>.page>.cnt.show').removeClass('show');
     $('#win-setting>.page>.cnt.' + name).addClass('show');
@@ -81,13 +104,13 @@ const setting = {
     $('#win-setting>.menu>list>a.' + name).addClass('check');
     if (name === 'time') apps.setting.timePanel('overview');
   },
-  timePanel: (name) => {
+  timePanel: (name: string) => {
     const $time = $('#win-setting>.page>.cnt.time');
     $time.find('.time-panel.show').removeClass('show');
     $time.find('.time-panel.' + name).addClass('show');
     $time.scrollTop(0);
   },
-  changeLanguage: (code) => {
+  changeLanguage: (code: string) => {
     localStorage.setItem('lang', code);
     window.location.reload();
   },
@@ -105,16 +128,16 @@ const setting = {
     api('repos/tjy-gitnub/win12-theme/contents').then((res) => {
       res.json().then((cs) => {
         console.log(cs);
-        cs.forEach((c) => {
+        cs.forEach((c: ThemeContentEntry) => {
           if (c.type == 'dir') {
             api(c.url, true).then((res) => {
               res.json().then((cnt) => {
                 $('#set-theme').html('');
-                cnt.forEach((cn) => {
+                cnt.forEach((cn: ThemeContentEntry) => {
                   if (cn.name == 'theme.json') {
                     $.getJSON(
                       'https://tjy-gitnub.github.io/win12-theme/' + cn.path,
-                    ).then((inf) => {
+                    ).then((inf: ThemeInfo) => {
                       // let infjs = inf;
                       if ($('#set-theme>loading').length)
                         $('#set-theme').html('');
@@ -131,17 +154,17 @@ const setting = {
       });
     });
   },
-  theme_set: (infp) => {
+  theme_set: (infp: string) => {
     api('repos/tjy-gitnub/win12-theme/contents/' + infp).then((res) => {
       res.json().then((cnt) => {
         // console.log('https://api.github.com/repos/tjy-gitnub/win12-theme/contents/' + infp);
-        cnt.forEach((cn) => {
+        cnt.forEach((cn: ThemeContentEntry) => {
           if (cn.name == 'theme.json') {
             $.getJSON(
               'https://tjy-gitnub.github.io/win12-theme/' + cn.path,
-            ).then((inf) => {
+            ).then((inf: ThemeInfo) => {
               let infjs = inf;
-              cnt.forEach((fbg) => {
+              cnt.forEach((fbg: ThemeContentEntry) => {
                 console.log(fbg, infjs);
                 if (fbg.name == infjs.bg) {
                   $(':root').css(
@@ -181,7 +204,8 @@ const setting = {
     $detail.text('正在连接 GitHub');
 
     try {
-      const result = await window.win12Native.checkAppUpdate();
+      const result =
+        (await window.win12Native.checkAppUpdate()) as AppUpdateInfo;
       const currentVersion = result.current_version || '未知版本';
       const latestVersion = result.latest_version || '未知版本';
       const publishedAt = result.published_at

@@ -74,7 +74,7 @@ const search = {
     { name: '农夫山泉瓶盖.svg', bi: 'image', ty: 'SVG 文件' },
     { name: '瓶盖介绍.doc', bi: 'richtext', ty: 'Microsoft Word 文档' },
   ],
-  search: (le) => {
+  search: (le: number) => {
     if (le > 0) {
       $('#search-win>.ans>.list>list').html(
         `<a class="a" onclick="apps.search.showdetail(${le % 8})"><i class="bi bi-file-earmark-${apps.search.rand[le % 8].bi}"></i> ${
@@ -101,7 +101,7 @@ const search = {
       $('#search-win>.ans>.view').removeClass('show');
     }
   },
-  showdetail: (i) => {
+  showdetail: (i: number) => {
     $('#search-win>.ans>.view').addClass('show');
     let inf = apps.search.rand[i];
     $('#search-win>.ans>.view>.fname>.bi').attr(

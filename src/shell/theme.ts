@@ -38,8 +38,14 @@ export function initTheme(): void {
   }
 }
 
-export const WEBGL_MODES = ['off', 'partial', 'full'];
-export const WEBGL_MODE_TEXT = { off: '关闭', partial: '部分', full: '全部' };
+export type WebGLMode = 'off' | 'partial' | 'full';
+
+export const WEBGL_MODES: WebGLMode[] = ['off', 'partial', 'full'];
+export const WEBGL_MODE_TEXT: Record<WebGLMode, string> = {
+  off: '关闭',
+  partial: '部分',
+  full: '全部',
+};
 
 /**
  * Reflect the mode that is ACTUALLY rendering in the settings control.
@@ -49,7 +55,7 @@ export const WEBGL_MODE_TEXT = { off: '关闭', partial: '部分', full: '全部
  * @param {string} requested mode the user asked for
  * @param {string} actual mode that is running
  */
-export function paintWebGLMode(requested, actual) {
+export function paintWebGLMode(requested: WebGLMode, actual: WebGLMode): void {
   const selector = document.getElementById('webgl-mode');
   if (selector) {
     // Modes are displayed directly by the segmented control.
@@ -78,9 +84,9 @@ export function paintWebGLMode(requested, actual) {
 
 // Settings file writes are serialised: two quick toggles used to race in a
 // read-modify-write and could drop the other setting.
-let webglSettingsWrite = Promise.resolve();
+let webglSettingsWrite: Promise<unknown> = Promise.resolve();
 
-export function saveWebGLModeToNative(mode) {
+export function saveWebGLModeToNative(mode: WebGLMode): void {
   const native = window.win12Native;
   if (!native || !native.isTauri || !native.isTauri()) return;
   webglSettingsWrite = webglSettingsWrite
@@ -100,15 +106,20 @@ export function saveWebGLModeToNative(mode) {
  * @param {{silent?: boolean}} [opts] silent: apply without writing settings
  * @returns {string} the mode that is actually running
  */
-export function setWebGLMode(mode, opts: any = {}) {
-  if (!WEBGL_MODES.includes(mode)) mode = 'off';
-  const actual = window.win12WebGL ? window.win12WebGL.apply(mode) : mode;
-  paintWebGLMode(mode, actual);
-  if (!(opts && opts.silent)) saveWebGLModeToNative(mode);
+export function setWebGLMode(
+  mode: string,
+  opts: { silent?: boolean } = {},
+): WebGLMode {
+  if (!WEBGL_MODES.includes(mode as WebGLMode)) mode = 'off';
+  const actual = (
+    window.win12WebGL ? window.win12WebGL.apply(mode) : mode
+  ) as WebGLMode;
+  paintWebGLMode(mode as WebGLMode, actual);
+  if (!(opts && opts.silent)) saveWebGLModeToNative(mode as WebGLMode);
   return actual;
 }
 
-export function loadWebGLMode() {
+export function loadWebGLMode(): void {
   // Boot: apply exactly once, and do not write the settings file back on
   // every launch (that is also a read-modify-write race with the Tauri
   // settings sync that runs around the same time).
@@ -139,6 +150,11 @@ document.addEventListener('keydown', (event) => {
 
 // Rendering can fall back while running (context lost, repeated frame errors).
 document.addEventListener('win12:webgl-fallback', () => {
-  const actual = window.win12WebGL ? window.win12WebGL.getMode() : 'off';
-  paintWebGLMode(localStorage.getItem('webgl-mode') || 'off', actual);
+  const actual = (
+    window.win12WebGL ? window.win12WebGL.getMode() : 'off'
+  ) as WebGLMode;
+  paintWebGLMode(
+    (localStorage.getItem('webgl-mode') || 'off') as WebGLMode,
+    actual,
+  );
 });

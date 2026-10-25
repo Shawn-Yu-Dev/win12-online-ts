@@ -17,12 +17,16 @@ export interface HistoryStack {
   front(tab: number): void;
 }
 
+interface HistoryApp extends HistoryStack {
+  goto(url: string, load?: boolean): void;
+}
+
 export function createHistoryStack(
   appName: string,
   backSel: string,
   frontSel: string,
 ): HistoryStack {
-  const self = () => apps[appName];
+  const self = () => apps[appName] as unknown as HistoryApp;
   return {
     history: [],
     historypt: [],
@@ -86,7 +90,7 @@ export function createHistoryStack(
 
 export function createWebapp(id: string, src: string) {
   return {
-    init: () => null,
+    init: (): void => {},
     load: () => {
       const container = document.getElementById('win-' + id);
       if (!container || container.querySelector(':scope > iframe')) return;

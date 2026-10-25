@@ -7,10 +7,10 @@ import { geticon, syncTaskbarLayout } from './taskbar';
 import { showcm } from './context-menu';
 import { showdescp, hidedescp } from './tooltip';
 import { icon } from '../data/app-icons';
-import { showwin, minwin, focwin } from '../core/windows';
+import { showwin, minwin, focwin, isTouchEvent } from '../core/windows';
 import { shownotice } from './notices';
 
-export function pinapp(id, name, command) {
+export function pinapp(id: string, name: string, command: string): void {
   if ($('#startmenu-r>.pinned>.apps>.a.sm-app.' + id).length) return;
   // 注意：command 本身已经带了 hide_startmenu()（见 cms 的 smapp 项），
   // 原写法在属性外多写了一段 ;hide_startmenu();' —— 是无效的多余标记，渲染结果不变。
@@ -21,14 +21,15 @@ export function pinapp(id, name, command) {
 
 // 应用方法
 
-export function openapp(name, bypassPreOpenNotice = false) {
+export function openapp(name: string, bypassPreOpenNotice = false): void {
   if (name == 'macos' && !bypassPreOpenNotice) {
     shownotice('macos-web');
     return;
   }
   if (
     taskmgrTasks.findIndex((elt) => elt.link == name) > -1 &&
-    apps.taskmgr.tasks.findIndex((elt) => elt.link == name) == -1
+    apps.taskmgr.tasks.findIndex((elt: { link: string }) => elt.link == name) ==
+      -1
   ) {
     apps.taskmgr.tasks.splice(
       apps.taskmgr.tasks.length,
@@ -46,7 +47,7 @@ export function openapp(name, bypassPreOpenNotice = false) {
   $('.window.' + name).addClass('load');
   showwin(name);
   $('#taskbar').append(
-    `<a class="${name}" onclick="taskbarclick('${name}\')" win12_title="${$(`.window.${name}>.titbar>p`).text()}" onmouseenter="showdescp(event)" onmouseleave="hidedescp(event)" oncontextmenu="return showcm(event, 'taskbar', '${name}')"><img src="icon/${icon[name] || name + '.svg'}"></a>`,
+    `<a class="${name}" onclick="taskbarclick('${name}\')" win12_title="${$(`.window.${name}>.titbar>p`).text()}" onmouseenter="showdescp(event)" onmouseleave="hidedescp(event)" oncontextmenu="return showcm(event, 'taskbar', '${name}')"><img src="icon/${geticon(name)}"></a>`,
   );
   syncTaskbarLayout();
   $('#taskbar>.' + name).addClass('foc');
@@ -77,7 +78,7 @@ export function openapp(name, bypassPreOpenNotice = false) {
 //打开任务栏按钮对应的 widget
 
 // 为啥管这个东西叫 widget?? from stsc
-export function openDockWidget(name) {
+export function openDockWidget(name: string): void {
   if (name == 'start-menu') {
     //打开开始菜单
     if ($('#start-menu').hasClass('show')) {
@@ -184,25 +185,25 @@ export function openDockWidget(name) {
   }
 }
 
-export function removeEdgeSaveUrl(classname) {
+export function removeEdgeSaveUrl(classname: string): void {
   $('.' + classname).remove();
 }
 
-export function hide_startmenu() {
+export function hide_startmenu(): void {
   $('#start-menu').removeClass('show');
   $('#start-btn').removeClass('show');
   setTimeout(() => {
     $('#start-menu').removeClass('show-begin');
   }, 200);
 }
-export function hide_search() {
+export function hide_search(): void {
   $('#search-win').removeClass('show');
   $('#search-btn').removeClass('show');
   setTimeout(() => {
     $('#search-win').removeClass('show-begin');
   }, 200);
 }
-export function hide_widgets() {
+export function hide_widgets(): void {
   $('#widgets').removeClass('show');
   $('#widgets-btn').removeClass('show');
   setTimeout(() => {
@@ -210,7 +211,7 @@ export function hide_widgets() {
   }, 200);
 }
 const FLY_HIDDEN_LIST_KEY = 'control_status_fly_hidden_list';
-export function controlStatus(this: HTMLElement, name) {
+export function controlStatus(this: HTMLElement, name: string): void {
   if (this.classList.contains('active')) {
     this.classList.remove('active');
     if (name == 'wifi') {
@@ -222,7 +223,9 @@ export function controlStatus(this: HTMLElement, name) {
         const flyHiddenData = JSON.parse(
           localStorage.getItem(FLY_HIDDEN_LIST_KEY),
         );
-        const flyHiddenList = Array.isArray(flyHiddenData) ? flyHiddenData : [];
+        const flyHiddenList: string[] = Array.isArray(flyHiddenData)
+          ? (flyHiddenData as string[])
+          : [];
         flyHiddenList.forEach((item) => {
           const dom = $(`#control .${item} .icon`);
           if (!dom.hasClass('active')) {
@@ -240,7 +243,7 @@ export function controlStatus(this: HTMLElement, name) {
     if (name == 'fly') {
       state.flyMode = true;
       const hiddenList = ['btn1', 'btn2', 'btn5'];
-      const hiddenDiffList = [];
+      const hiddenDiffList: string[] = [];
       hiddenList.forEach((item) => {
         const dom = $(`#control .${item} .icon`);
         if (dom.hasClass('active')) {
@@ -260,7 +263,7 @@ export function controlStatus(this: HTMLElement, name) {
     }
   }
 }
-export function dragBrightness(e) {
+export function dragBrightness(e: MouseEvent | TouchEvent): void {
   const container = $('#control>.cont>.bottom>.brightness>.range-container')[0];
   const after = $(
     '#control>.cont>.bottom>.brightness>.range-container>.after',
@@ -276,12 +279,12 @@ export function dragBrightness(e) {
   page.onmousemove = move;
   page.ontouchmove = move;
   container.classList.add('active');
-  function move(e) {
-    let clientX;
-    if (e.type.match('mouse')) {
-      clientX = e.clientX;
-    } else if (e.type.match('touch')) {
+  function move(e: MouseEvent | TouchEvent): void {
+    let clientX: number;
+    if (isTouchEvent(e)) {
       clientX = e.touches[0].clientX;
+    } else {
+      clientX = e.clientX;
     }
     var _offset = clientX - viewport;
 

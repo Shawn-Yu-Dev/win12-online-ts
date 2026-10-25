@@ -66,7 +66,7 @@ export const copilot = {
       $('#copilot>.chat').scrollTop($('#copilot>.chat')[0].scrollHeight);
     }, 200);
   },
-  send: (t, showusr = true, role = 'user') => {
+  send: (t: string, showusr = true, role = 'user') => {
     // 输入验证
     if (t.length == 0) {
       $('#copilot>.chat').append(
@@ -115,7 +115,9 @@ export const copilot = {
                 },
                 error: function () {
                     $('#copilot>.chat').append(`<div class="line system"><p class="text">安全检查服务暂时不可用，请稍后再试。</p></div>`);
-                    $('#copilot>.chat').scrollTop($('#copilot>.chat').scrollHeight);
+      $('#copilot>.chat').scrollTop(
+        $('#copilot>.chat')[0].scrollHeight,
+      );
                     msgDoneOperate();
                 }
             });
@@ -126,7 +128,11 @@ export const copilot = {
       $('#copilot>.chat').append(
         `<div class="line system"><p class="text">针对这个问题我无法为你提供相应解答。你可以尝试提供其他话题，我会尽力为你提供支持和解答。</p></div>`,
       );
-      $('#copilot>.chat').scrollTop($('#copilot>.chat').scrollHeight);
+      // `$()` 结果没有 scrollHeight；保留原来的取值语义（undefined 时仅调用 getter）。
+      const chat = $('#copilot>.chat');
+      chat.scrollTop(
+        (chat as unknown as { scrollHeight?: number }).scrollHeight,
+      );
       msgDoneOperate();
     }
 
@@ -246,5 +252,5 @@ export const copilot = {
       });
     }
   },
-  ana: (resp) => {},
+  ana: (resp: unknown) => {},
 };

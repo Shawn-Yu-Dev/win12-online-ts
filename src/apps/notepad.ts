@@ -117,7 +117,7 @@ const notepad = {
     $('#notepad-md-preview').hide();
     $('#win-notepad>.text-box').show();
   },
-  setMdMode: (enabled) => {
+  setMdMode: (enabled: boolean) => {
     apps.notepad._resetPreview();
     apps.notepad._isMd = enabled;
     if (enabled) {

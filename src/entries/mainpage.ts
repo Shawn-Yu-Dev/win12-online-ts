@@ -2,9 +2,17 @@ import { resolveEdgeAddressInput } from '../scripts/edge-address';
 
 const searchInput = document.querySelector<HTMLInputElement>('.input input');
 
+interface ParentEdgeApp {
+  rename?: (value: string) => void;
+}
+
+interface ParentAppsWindow extends Window {
+  apps?: { edge?: ParentEdgeApp };
+}
+
 function renameAddress(value: string): void {
   try {
-    const parentApps = (window.parent as Window & { apps?: any }).apps;
+    const parentApps = (window.parent as ParentAppsWindow).apps;
     if (typeof parentApps?.edge?.rename === 'function') {
       parentApps.edge.rename(value);
     }

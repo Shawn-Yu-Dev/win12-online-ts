@@ -1,9 +1,16 @@
 //农历获取实现 By @stxttkx
 // 由 lingbopro 改良
 
-export let lunarCache = null;
-export let lunarCachePromise = null;
-export async function getLunar() {
+export interface LunarPayload {
+  农历?: string;
+  data?: {
+    AD?: string;
+  };
+}
+
+export let lunarCache: LunarPayload | null = null;
+export let lunarCachePromise: Promise<LunarPayload | null> | null = null;
+export async function getLunar(): Promise<void> {
   let lunarDisplay = document.getElementById('lunar');
 
   // 缓存验证
