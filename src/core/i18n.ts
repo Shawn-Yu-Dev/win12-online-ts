@@ -84,7 +84,7 @@ export function isTauriApp(): boolean {
 }
 
 export function getAboutAppTitle(): string {
-  if (!isTauriApp()) return lang('关于 Win12 网页版', 'about.name');
+  if (!isTauriApp()) return lang('关于 Win12 Online (TS)', 'about.name');
   if (langcode == 'en') return 'About Win12-desktop';
   if (langcode == 'zh-TW') return '關於 Win12-desktop';
   return '关于 Win12-desktop';
