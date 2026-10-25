@@ -57,7 +57,9 @@ import { setIcon, saveDesktop } from '../shell/desktop';
 
 const about = {
   repo: () => {
-    return isTauriApp() ? 'win12-online/win12-desktop' : 'Shawn-Yu-Dev/win12-online-ts';
+    return isTauriApp()
+      ? 'win12-online/win12-desktop'
+      : 'Shawn-Yu-Dev/win12-online-ts';
   },
   contentSuffix: () => {
     return isTauriApp() ? 'tauri' : 'web';
@@ -94,10 +96,10 @@ const about = {
       /[&<>"']/g,
       (ch) =>
         ({
-          '&': '&',
-          '<': '<',
-          '>': '>',
-          '"': '"',
+          '&': '\u0026amp;',
+          '<': '\u0026lt;',
+          '>': '\u0026gt;',
+          '"': '\u0026quot;',
           "'": '&#39;',
         })[ch],
     );
