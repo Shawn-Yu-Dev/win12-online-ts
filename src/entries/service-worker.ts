@@ -41,7 +41,24 @@ export async function updateCache(force = false): Promise<void> {
   );
 }
 
-self.addEventListener('fetch', (event: any) => {
+interface FetchEventLike extends Event {
+  request: Request;
+  respondWith(response: Promise<Response>): void;
+}
+
+interface MessageEventLike extends Event {
+  data?: {
+    head?: string;
+    force?: unknown;
+  };
+  waitUntil?(promise: Promise<unknown>): void;
+}
+
+interface ActivateEventLike extends Event {
+  waitUntil(promise: Promise<unknown>): void;
+}
+
+self.addEventListener('fetch', (event: FetchEventLike) => {
   const request = event.request as Request;
   const url = new URL(request.url);
   if (!/^https?:$/.test(url.protocol) || request.method !== 'GET') return;
@@ -61,12 +78,12 @@ self.addEventListener('fetch', (event: any) => {
   );
 });
 
-self.addEventListener('message', (event: any) => {
+self.addEventListener('message', (event: MessageEventLike) => {
   if (event.data?.head !== 'update') return;
   const update = updateCache(Boolean(event.data.force));
   event.waitUntil?.(update);
 });
 
-self.addEventListener('activate', (event: any) => {
+self.addEventListener('activate', (event: ActivateEventLike) => {
   event.waitUntil(updateCache(false));
 });

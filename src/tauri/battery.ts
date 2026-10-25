@@ -1,5 +1,5 @@
 import { lang } from '../core/i18n';
-import { win12Native } from './api';
+import { win12Native, type BatteryInfo } from './api';
 
 const BATTERY_REFRESH_INTERVAL = 30000;
 
@@ -21,7 +21,7 @@ export function setBatteryUnavailableUI(): void {
   el.setAttribute('aria-label', title);
 }
 
-export function updateBatteryUI(battery: any): void {
+export function updateBatteryUI(battery: BatteryInfo | null): void {
   const percent = normalizePercent(battery?.percent);
   const el = document.querySelector('#battery');
   const pathElement = document.querySelector('#battery .battery-icon > path');

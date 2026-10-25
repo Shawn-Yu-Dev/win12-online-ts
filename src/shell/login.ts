@@ -9,7 +9,7 @@ let loginFinishing = false;
 let startupNoticeShown = false;
 export const LOGIN_BRIDGE_TIMEOUT_MS = 8000;
 
-export function showStartupNoticeOnce() {
+export function showStartupNoticeOnce(): void {
   if (startupNoticeShown) return;
   startupNoticeShown = true;
   shownotice('about');
@@ -22,7 +22,7 @@ function withLoginBridgeTimeout<T>(
   return withTimeout(promise, LOGIN_BRIDGE_TIMEOUT_MS, message);
 }
 
-export function isNativeLoginEnvironment() {
+export function isNativeLoginEnvironment(): boolean {
   try {
     if (
       window.win12Native &&
@@ -34,14 +34,20 @@ export function isNativeLoginEnvironment() {
   return !!(window.__TAURI__ && window.__TAURI__.core);
 }
 
-export function requireLoginBridge(method) {
-  if (!window.win12Native || typeof window.win12Native[method] != 'function') {
+export function requireLoginBridge(
+  method: string,
+): NonNullable<Window['win12Native']> {
+  const native = window.win12Native;
+  if (
+    !native ||
+    typeof (native as unknown as Record<string, unknown>)[method] != 'function'
+  ) {
     throw new Error('本地密码服务尚未就绪');
   }
-  return window.win12Native;
+  return native;
 }
 
-export function win12FinishLogin() {
+export function win12FinishLogin(): void {
   if (loginFinishing) return;
   loginFinishing = true;
   setLoginError('');
@@ -68,11 +74,11 @@ export function win12FinishLogin() {
   }, 2000);
 }
 
-export function setLoginError(text) {
+export function setLoginError(text: string): void {
   $('#login-error').text(text);
 }
 
-export async function initLoginPassword() {
+export async function initLoginPassword(): Promise<void> {
   const isNative = isNativeLoginEnvironment();
   if (
     isNative &&
@@ -139,7 +145,7 @@ export async function win12LoginSubmit() {
   }
   if (loginPasswordStatus != 'has-password') return;
 
-  const password = $('#login-password').val();
+  const password = $('#login-password').val() as string;
   if (!password) {
     setLoginError('请输入密码');
     $('#login-password').focus();
@@ -229,8 +235,8 @@ export async function win12SetLoginPassword() {
     return;
   }
 
-  const currentPassword = $('#setting-password-current').val();
-  const newPassword = $('#setting-password-new').val();
+  const currentPassword = $('#setting-password-current').val() as string;
+  const newPassword = $('#setting-password-new').val() as string;
   if (!loginPasswordHasPassword && !newPassword) {
     $('#setting-password-status').text('请输入新密码');
     $('#setting-password-new').focus();

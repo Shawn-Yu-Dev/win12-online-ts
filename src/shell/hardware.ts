@@ -3,7 +3,13 @@ import { apps } from '../core/app-registry';
 import { lang, isTauriApp } from '../core/i18n';
 
 // 控制面板 电量监测
-export function setBatteryTooltip(title) {
+export interface BatteryStatus {
+  level: number;
+  charging: boolean;
+  addEventListener?: (type: 'levelchange', listener: () => void) => void;
+}
+
+export function setBatteryTooltip(title: string): void {
   const el = $('.a.dock.control')[0];
   if (el) {
     el.setAttribute('win12_title', title);
@@ -12,22 +18,24 @@ export function setBatteryTooltip(title) {
   }
 }
 
-export function getBatteryTooltip(level, charging) {
+export function getBatteryTooltip(level: number, charging: boolean): string {
   const percent = Math.round(level * 100);
   const chargingText = charging ? lang('，正在充电', 'battery.charging') : '';
   return `${lang('电量：', 'battery.level')}${percent}%${chargingText}`;
 }
 
-export function setBatteryUnavailableTooltip() {
+export function setBatteryUnavailableTooltip(): void {
   setBatteryTooltip(lang('无法获取电量', 'battery.unavailable'));
 }
 
 export function initBatteryMonitor(): void {
-  const nav = navigator as any;
+  const nav = navigator as Navigator & {
+    getBattery?: () => Promise<BatteryStatus>;
+  };
   if (!isTauriApp() && nav.getBattery) {
     nav
       .getBattery()
-      .then((battery) => {
+      .then((battery: BatteryStatus) => {
         // 检查 battery 对象和 level 属性是否存在且有效
         if (
           battery &&
@@ -79,7 +87,7 @@ export function initBatteryMonitor(): void {
           setBatteryUnavailableTooltip();
         }
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         // 静默处理错误，电池 API 在某些浏览器中不可用是正常的
         console.log('电池 API 不可用：', error);
         setBatteryUnavailableTooltip();

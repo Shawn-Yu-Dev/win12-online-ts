@@ -5,14 +5,14 @@ import {
   isVisibleBlockingLayer,
 } from '../core/accessibility';
 
-export function isMobileDevice() {
+export function isMobileDevice(): boolean {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
 let orientationDismissed = false;
-let orientationPreviousFocus = null;
+let orientationPreviousFocus: HTMLElement | null = null;
 
-export function checkOrientation() {
+export function checkOrientation(): void {
   if (orientationDismissed) return;
   const container = document.getElementById('orientation-warning');
   const isPortrait = window.matchMedia('(orientation: portrait)').matches;
@@ -23,7 +23,7 @@ export function checkOrientation() {
       document.activeElement &&
       document.activeElement !== document.body
     ) {
-      orientationPreviousFocus = document.activeElement;
+      orientationPreviousFocus = document.activeElement as HTMLElement;
     }
     container.style.display = 'flex';
     if (!wasVisible && getHighestBlockingLayer() === container) {
@@ -34,7 +34,7 @@ export function checkOrientation() {
   }
 }
 
-export function dismissOrientation() {
+export function dismissOrientation(): void {
   orientationDismissed = true;
   document.getElementById('orientation-warning').style.display = 'none';
   if (

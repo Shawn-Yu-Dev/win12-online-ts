@@ -2,11 +2,12 @@ import { $, page } from '../core/dom';
 import { state } from '../core/state';
 import { lang, getAboutAppTitle } from '../core/i18n';
 import { setData } from '../core/utils';
+import { isTouchEvent } from '../core/windows';
 import { openapp } from './launcher';
 import { showcm, addMenu } from './context-menu';
 import { shownotice } from './notices';
 
-export function saveDesktop() {
+export function saveDesktop(): void {
   const data = {
     desktop: JSON.stringify(state.desktopItems),
     topmost: JSON.stringify(state.topmost),
@@ -25,8 +26,8 @@ const gap = 10; // 单位间隔
 const padding = 20; // 偏移
 // 原本这三个是 const，只在脚本执行期算一次，窗口 resize 后吸附网格就失效了。
 // 改成每次拖拽开始时重算（不放在 mousemove 里，避免逐帧触发 layout）。
-let parentRect, cols, rows;
-export function refreshDesktopGrid() {
+let parentRect: DOMRect, cols: number, rows: number;
+export function refreshDesktopGrid(): void {
   parentRect = parentEl.getBoundingClientRect();
   cols = Math.max(
     1,
@@ -39,10 +40,12 @@ export function refreshDesktopGrid() {
 }
 refreshDesktopGrid();
 
-export function desktopMove(elt, e) {
+export function desktopMove(
+  elt: HTMLElement,
+  e: MouseEvent | TouchEvent,
+): void {
   if (!state.editMode) return; // 编辑模式有效
   refreshDesktopGrid(); // 桌面尺寸可能已变，重算吸附网格
-  e = e || window.event;
   // 阻止桌面响应
   try {
     e.stopPropagation();
@@ -51,17 +54,19 @@ export function desktopMove(elt, e) {
     e.preventDefault();
   } catch (err) {}
   let rect = elt.getBoundingClientRect();
-  let deltaLeft = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-  let deltaTop = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  let deltaLeft =
+    (isTouchEvent(e) ? e.touches[0].clientX : e.clientX) - rect.left;
+  let deltaTop =
+    (isTouchEvent(e) ? e.touches[0].clientY : e.clientY) - rect.top;
   elt.style.position = 'fixed';
   elt.style.width = `${rect.width}px`;
   elt.style.height = `${rect.height}px`;
   elt.classList.add('moving');
   elt.classList.add('notrans');
 
-  function moving(ev) {
-    let clientX = ev.type.match('touch') ? ev.touches[0].clientX : ev.clientX;
-    let clientY = ev.type.match('touch') ? ev.touches[0].clientY : ev.clientY;
+  function moving(ev: MouseEvent | TouchEvent): void {
+    let clientX = isTouchEvent(ev) ? ev.touches[0].clientX : ev.clientX;
+    let clientY = isTouchEvent(ev) ? ev.touches[0].clientY : ev.clientY;
 
     let leftPx = clientX - deltaLeft;
     let topPx = clientY - deltaTop;
@@ -92,8 +97,8 @@ export function desktopMove(elt, e) {
     document.body.style.userSelect = '';
     // 将固定坐标转换为相对于桌面的绝对位置
     //const parentRect = $('#desktop')[0].getBoundingClientRect();
-    const left = parseFloat(elt.style.left || 0) - parentRect.left;
-    const top = parseFloat(elt.style.top || 0) - parentRect.top;
+    const left = parseFloat(elt.style.left || '0') - parentRect.left;
+    const top = parseFloat(elt.style.top || '0') - parentRect.top;
     elt.style.position = 'absolute';
     elt.style.left = `${left}px`;
     // 存储网格坐标
@@ -117,7 +122,7 @@ export function desktopMove(elt, e) {
   page.ontouchcancel = up;
 }
 
-export function attachDesktopDrag() {
+export function attachDesktopDrag(): void {
   const parent = $('#desktop')[0] as HTMLElement;
   if (!parent) return;
   const children = (Array.from(parent.children) as HTMLElement[]).filter(
@@ -169,19 +174,19 @@ export function attachDesktopDrag() {
     };
   });
 }
-export function readStoredArray(key) {
+export function readStoredArray<T = string>(key: string): T[] | null {
   const value = localStorage.getItem(key);
   if (value === null) return null;
   try {
-    const parsed = JSON.parse(value);
-    if (Array.isArray(parsed)) return parsed;
+    const parsed: unknown = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed as T[];
   } catch (e) {}
   localStorage.removeItem(key);
   return null;
 }
-export function setIcon() {
+export function setIcon(): void {
   // return;
-  let storedDesktop = readStoredArray('desktop');
+  let storedDesktop = readStoredArray<string>('desktop');
   if (storedDesktop === null) {
     storedDesktop = [];
     setData('desktop', '[]');
@@ -217,14 +222,14 @@ export function setIcon() {
     });
     addMenu();
   }
-  const storedTopmost = readStoredArray('topmost');
+  const storedTopmost = readStoredArray<string>('topmost');
   if (storedTopmost !== null) {
     state.topmost = storedTopmost;
     if (state.topmost.includes('taskmgr')) {
-      $('#tsk-setting-topmost')[0].checked = true;
+      ($('#tsk-setting-topmost')[0] as HTMLInputElement).checked = true;
     }
   }
-  const storedSystemSettings = readStoredArray('sys_setting');
+  const storedSystemSettings = readStoredArray<number>('sys_setting');
   if (storedSystemSettings !== null) {
     var sysSettingBack = storedSystemSettings;
     if (/^(1|0)+$/.test(sysSettingBack.join('')) /* 只含有 0 和 1 */) {

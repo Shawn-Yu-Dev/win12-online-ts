@@ -7,7 +7,7 @@ let noticeOpenTimer: ReturnType<typeof setTimeout> | null = null;
 let noticeCloseTimer: ReturnType<typeof setTimeout> | null = null;
 let noticeInertElements: HTMLElement[] = [];
 
-export function dismissTransientOverlaysForModal() {
+export function dismissTransientOverlaysForModal(): void {
   // These layers normally close via blur/mouseleave, but making their parent
   // inert can suppress that event.  Leaving a higher-z-index inert overlay
   // visible would recreate a "visible but unclickable" surface above modal.
@@ -16,7 +16,7 @@ export function dismissTransientOverlaysForModal() {
   $('[data-descp]').attr('data-descp', 'hide');
 }
 
-export function getNoticeFocusable() {
+export function getNoticeFocusable(): Element[] {
   return [
     ...document.querySelectorAll(
       '#notice button:not([disabled]), #notice a[href], #notice input:not([disabled]), ' +
@@ -25,14 +25,15 @@ export function getNoticeFocusable() {
   ].filter((element) => getComputedStyle(element).display !== 'none');
 }
 
-export function handleNoticeKeydown(event) {
+export function handleNoticeKeydown(event: KeyboardEvent): void {
   if (!$('#notice-back').hasClass('show')) return;
+  const target = event.target as HTMLElement | null;
   if (
     (event.key === 'Enter' || event.key === ' ') &&
-    event.target.matches('#notice a[role="button"]')
+    target?.matches('#notice a[role="button"]')
   ) {
     event.preventDefault();
-    event.target.click();
+    target.click();
     return;
   }
   if (event.key !== 'Tab') return;
@@ -55,7 +56,7 @@ export function handleNoticeKeydown(event) {
     (first as HTMLElement).focus();
   }
 }
-export function shownotice(name) {
+export function shownotice(name: string): void {
   clearTimeout(noticeOpenTimer);
   clearTimeout(noticeCloseTimer);
   dismissTransientOverlaysForModal();
@@ -97,7 +98,7 @@ export function shownotice(name) {
     ((focusable[0] || notice) as HTMLElement).focus();
   }, 200);
 }
-export function closenotice() {
+export function closenotice(): void {
   clearTimeout(noticeOpenTimer);
   noticeOpenTimer = null;
   $('#notice').removeClass('show');

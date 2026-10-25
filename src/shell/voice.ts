@@ -10,7 +10,23 @@ let pos1 = 0,
   pos4 = 0;
 let isDragging = false;
 
-export function dragMouseDown(e) {
+interface SpeechResultLike {
+  transcript: string;
+}
+
+interface SpeechEventLike {
+  results: ArrayLike<ArrayLike<SpeechResultLike>>;
+}
+
+interface SpeechRecognitionLike {
+  lang: string;
+  onresult: ((event: SpeechEventLike) => void) | null;
+  start(): void;
+}
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
+export function dragMouseDown(e: PointerEvent): void {
   e.preventDefault();
   pos3 = e.clientX;
   pos4 = e.clientY;
@@ -18,7 +34,7 @@ export function dragMouseDown(e) {
   isDragging = false;
 }
 
-export function elementDrag(e) {
+export function elementDrag(e: PointerEvent): void {
   e.preventDefault();
   pos1 = pos3 - e.clientX;
   pos2 = pos4 - e.clientY;
@@ -29,14 +45,14 @@ export function elementDrag(e) {
   isDragging = true;
 }
 
-export function stopDrag() {
+export function stopDrag(): void {
   document.removeEventListener('pointermove', elementDrag);
   if (!isDragging) {
     startSpeechRecognition();
   }
 }
 
-export function insertTextAtCursor(text) {
+export function insertTextAtCursor(text: string): void {
   let range, selection;
 
   if (window.getSelection) {
@@ -70,10 +86,14 @@ export function insertTextAtCursor(text) {
   }
 }
 
-export function startSpeechRecognition() {
+export function startSpeechRecognition(): void {
+  const speechWindow = window as unknown as {
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    SpeechRecognition?: SpeechRecognitionConstructor;
+  };
   const Recognition =
-    (window as any).webkitSpeechRecognition ||
-    (window as any).SpeechRecognition;
+    speechWindow.webkitSpeechRecognition || speechWindow.SpeechRecognition;
+  if (!Recognition) return;
   const recognition = new Recognition();
   recognition.lang = 'zh-CN';
 
@@ -81,7 +101,7 @@ export function startSpeechRecognition() {
     shownotice('recognition');
     nbFlag = false;
   } else {
-    recognition.onresult = function (event) {
+    recognition.onresult = function (event: SpeechEventLike) {
       var result = event.results[0][0].transcript;
       insertTextAtCursor(result);
     };
@@ -90,17 +110,19 @@ export function startSpeechRecognition() {
   }
 }
 
-export function updateVoiceBallStatus() {
+export function updateVoiceBallStatus(): void {
   document
     .getElementById('voiceBall')
     .style.setProperty('display', state.useMicVoice ? 'block' : 'none');
 }
 
-export function decodeHtml(s) {
+export function decodeHtml(s: string): string {
   $('#translater').text(s);
-  return $('#translater').html().replace(/\n/g, '<br>').replace(/ /g, '&nbsp;');
+  return ($('#translater').html() || '')
+    .replace(/\n/g, '<br>')
+    .replace(/ /g, '&nbsp;');
 }
-export function msgDoneOperate() {
+export function msgDoneOperate(): void {
   $('#copilot>.inputbox').removeClass('disable');
   setTimeout(() => {
     $('#copilot>.inputbox>.input').focus();

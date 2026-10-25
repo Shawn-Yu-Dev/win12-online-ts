@@ -4,7 +4,7 @@ import { $ } from '../core/dom';
  * 每个彩蛋只依赖 inTerminal 与全局 jQuery，不闭包 runcmd 的任何其他局部变量。
  */
 export const terminalEggs = {
-  matrix(inTerminal) {
+  matrix(inTerminal: boolean) {
     if (inTerminal) {
       const chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890'; // 哈？(from stsc)
       let matrix = '';
@@ -62,7 +62,7 @@ export const terminalEggs = {
     }
     return true;
   },
-  snow(inTerminal) {
+  snow(inTerminal: boolean) {
     if (inTerminal) {
       $('#win-terminal>.text-cmd').append('让整个屏幕下雪吧! ❄️\n');
       if (!$('#snow-container').length) {
@@ -186,7 +186,7 @@ export const terminalEggs = {
     }
     return true;
   },
-  dance(inTerminal) {
+  dance(inTerminal: boolean) {
     if (inTerminal) {
       $('#win-terminal>.text-cmd').append('窗口开始跳舞啦! ♪(^∇^*)\n');
       const windows = $('.window:not(.min)');
@@ -221,7 +221,7 @@ export const terminalEggs = {
     }
     return true;
   },
-  starwars(inTerminal) {
+  starwars(inTerminal: boolean) {
     if (inTerminal) {
       $('#win-terminal>.text-cmd').append('原力与你同在... ⚔️\n');
 

@@ -7,7 +7,7 @@ import type { ContextMenuEntry } from '../core/app-types';
 
 export const cms: Record<string, ContextMenuEntry[]> = {
   'save-bar': [
-    (arg) => {
+    (arg: string) => {
       return [
         '<i class="bi bi-window-x"></i> 移除',
         `removeEdgeSaveUrl('${arg}')`,
@@ -15,7 +15,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   titbar: [
-    (arg) => {
+    (arg: string) => {
       if (arg in nomax) {
         return 'null';
       }
@@ -33,7 +33,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       }
     },
-    (arg) => {
+    (arg: string) => {
       if (arg in nomin) {
         return 'null';
       } else {
@@ -43,7 +43,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       }
     },
-    (arg) => {
+    (arg: string) => {
       if (arg in nomin) {
         return [
           '<i class="bi bi-window-x"></i> ' + lang('关闭', 'close'),
@@ -58,7 +58,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   taskbar: [
-    (arg) => {
+    (arg: string) => {
       return [
         '<i class="bi bi-window-x"></i> ' + lang('关闭', 'close'),
         `hidewin('${arg}')`,
@@ -76,7 +76,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
       'toggletheme()',
     ],
     `<a onmousedown="window.open(\'https://github.com/win12-online/win12\',\'_blank\');" win12_title="https://github.com/win12-online/win12" onmouseenter="showdescp(event)" onmouseleave="hidedescp(event)"><i class="bi bi-github"></i> ${lang('在 Github 中查看此项目', 'desktop.vogithub')}</a>`,
-    (arg) => {
+    (arg: string) => {
       if (state.editMode) {
         return [
           '<i class="bi bi-pencil"></i> ' +
@@ -101,14 +101,14 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     ],
   ],
   'desktop.icon': [
-    (arg) => {
+    (arg: readonly [string | null, string | null]) => {
       return [
         '<i class="bi bi-folder2-open"></i> ' + lang('打开', 'open'),
         'openapp(`' + arg[0] + '`)',
       ];
     },
-    (arg) => {
-      if (arg[1] >= 0) {
+    (arg: readonly [string | null, string | null]) => {
+      if (Number(arg[1]) >= 0) {
         return [
           '<i class="bi bi-trash3"></i> ' + lang('删除', 'del'),
           'desktopItem.splice(' +
@@ -121,7 +121,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   winx: [
-    (arg) => {
+    (arg: string) => {
       if ($('#start-menu').hasClass('show')) {
         return [
           '<i class="bi bi-box-arrow-in-down"></i> 关闭开始菜单',
@@ -166,13 +166,13 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     ],
   ],
   smapp: [
-    (arg) => {
+    (arg: readonly [string, string]) => {
       return [
         '<i class="bi bi-window"></i> ' + lang('打开', 'open'),
         `openapp('${arg[0]}');hide_startmenu();`,
       ];
     },
-    (arg) => {
+    (arg: readonly [string, string]) => {
       return [
         '<i class="bi bi-link-45deg"></i> 在桌面创建链接',
         "var s=`<div class='b' ondblclick=openapp('" +
@@ -188,7 +188,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
           "</p></div>`;$('#desktop').append(s);desktopItem[desktopItem.length]=s;addMenu();saveDesktop();",
       ];
     },
-    (arg) => {
+    (arg: readonly [string, string]) => {
       return [
         '<i class="bi bi-x"></i> 取消固定',
         `$('#startmenu-r>.pinned>.apps>.sm-app.${arg[0]}').remove()`,
@@ -196,13 +196,13 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   smlapp: [
-    (arg) => {
+    (arg: readonly [string, string]) => {
       return [
         '<i class="bi bi-window"></i> ' + lang('打开', 'open'),
         `openapp('${arg[0]}');hide_startmenu();`,
       ];
     },
-    (arg) => {
+    (arg: readonly [string, string]) => {
       return [
         '<i class="bi bi-link-45deg"></i> 在桌面创建链接',
         "var s=`<div class='b' ondblclick=openapp('" +
@@ -218,7 +218,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
           "</p></div>`;$('#desktop').append(s);desktopItem[desktopItem.length]=s;addMenu();saveDesktop();",
       ];
     },
-    (arg) => {
+    (arg: readonly [string, string]) => {
       return [
         '<i class="bi bi-pin-angle"></i> 固定到开始菜单',
         "pinapp('" +
@@ -244,19 +244,19 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     ],
   ],
   'explorer.folder': [
-    (arg) => {
+    (arg: string) => {
       return [
         '<i class="bi bi-folder2-open"></i> ' + lang('打开', 'open'),
         `apps.explorer.goto('${arg}')`,
       ];
     },
-    (arg) => {
+    (arg: string) => {
       return [
         '<i class="bi bi-arrow-up-right-square"></i> 在新标签页中打开',
         `apps.explorer.newtab('${arg}');`,
       ];
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-trash3"></i> ' + lang('删除', 'del'),
@@ -264,7 +264,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-files"></i> 复制',
@@ -272,7 +272,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-scissors"></i> 剪切',
@@ -280,7 +280,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-input-cursor-text"></i> 重命名',
@@ -290,7 +290,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   'explorer.file': [
-    (arg) => {
+    (arg: string) => {
       const drive = arg.split('/')[0];
       if (apps.explorer.mounts[drive])
         return [
@@ -306,7 +306,9 @@ export const cms: Record<string, ContextMenuEntry[]> = {
       });
       var fileCmd = '';
       if (tmp && tmp.file) {
-        var f = tmp.file.find((f) => f.name === fileName);
+        var f = tmp.file.find(
+          (f: { name: string; command?: string }) => f.name === fileName,
+        );
         if (f && f.command) fileCmd = f.command;
       }
       if (fileCmd)
@@ -316,7 +318,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-trash3"></i> ' + lang('删除', 'del'),
@@ -324,7 +326,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text')[0].innerHTML != '此电脑')
         return [
           '<i class="bi bi-files"></i> 复制',
@@ -332,14 +334,14 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-scissors"></i> 剪切',
           `apps.explorer.copy_or_cut('${arg}','cut')`,
         ];
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-input-cursor-text"></i> 重命名',
@@ -349,7 +351,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   'explorer.content': [
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-file-earmark-plus"></i> 新建文件',
@@ -357,7 +359,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-folder-plus"></i> 新建文件夹',
@@ -365,7 +367,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-file-earmark-arrow-down"></i> 粘贴',
@@ -373,7 +375,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         ];
       return 'null';
     },
-    (arg) => {
+    (arg: string) => {
       if ($('#win-explorer>.path>.tit>.path>div.text').length > 1)
         return [
           '<i class="bi bi-arrow-clockwise"></i> 刷新',
@@ -384,7 +386,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
         'apps.explorer.reset()',
       ];
     },
-    (arg) => {
+    (arg: string) => {
       if (
         $('#win-explorer>.path>.tit>.path>div.text').length <= 1 &&
         apps.explorer.fsApiSupported
@@ -397,17 +399,17 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   'explorer.mounted': [
-    (arg) => [
+    (arg: string) => [
       '<i class="bi bi-folder2-open"></i> 打开',
       `apps.explorer.goto('${arg}')`,
     ],
-    (arg) => [
+    (arg: string) => [
       '<i class="bi bi-eject"></i> 卸载',
       `apps.explorer.unmountDrive('${arg}')`,
     ],
   ],
   'explorer.tab': [
-    (arg) => {
+    (arg: number) => {
       return [
         '<i class="bi bi-x"></i> 关闭标签页',
         `m_tab.close('explorer',${arg})`,
@@ -415,13 +417,13 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   'edge.tab': [
-    (arg) => {
+    (arg: number) => {
       return [
         '<i class="bi bi-pencil-square"></i> 命名标签页',
         `apps.edge.c_rename(${arg})`,
       ];
     },
-    (arg) => {
+    (arg: number) => {
       return [
         '<i class="bi bi-x"></i> 关闭标签页',
         `m_tab.close('edge',${arg})`,
@@ -429,7 +431,7 @@ export const cms: Record<string, ContextMenuEntry[]> = {
     },
   ],
   'taskmgr.processes': [
-    (arg) => {
+    (arg: string) => {
       return [
         '<i class="bi bi-x"></i> 结束任务',
         `apps.taskmgr.taskkill('${arg}')`,

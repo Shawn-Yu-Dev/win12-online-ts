@@ -4,12 +4,92 @@ import { state } from '../core/state';
 import { lang } from '../core/i18n';
 import { Calculator } from '../scripts/calculator';
 import { openapp } from '../shell/launcher';
+import { isTouchEvent } from '../core/windows';
 
 let widgetCalculator: Calculator | null = null; // 小组件功能
 
-export const widgets: any = {
+interface DesktopGridPosition {
+  col: number;
+  row: number;
+}
+
+interface WidgetModule {
+  init?: () => void;
+  remove?: () => void;
+  update?: () => void;
+  [key: string]: unknown;
+}
+
+interface WidgetGroup {
+  add(arg: string): void;
+  remove(arg: string): void;
+  addToToolbar(arg: string): void;
+  addToDesktop(arg: string): void;
+  [key: string]: unknown;
+}
+
+interface WeatherWidget extends WidgetModule {
+  init(): void;
+  remove(): void;
+  update(): void;
+  handel?: ReturnType<typeof setInterval>;
+}
+
+interface MonitorWidget extends WidgetModule {
+  type: string;
+  handle: number | null;
+  init(): void;
+  update(): void;
+  remove(): void;
+}
+
+interface NowPlayingLabels {
+  label: string;
+  noTrack: string;
+  importHint: string;
+  localFile: string;
+  back: string;
+  playPause: string;
+  forward: string;
+  importAudio: string;
+}
+
+interface NowPlayingWidget {
+  audio: HTMLAudioElement | null;
+  objectUrl: string | null;
+  title: string;
+  artist: string;
+  onEnded: (() => void) | null;
+  _dockNuclearPositionApplied?: boolean;
+  _dockPinInteractionFixed?: boolean;
+  text(): NowPlayingLabels;
+  init(): void;
+  bind(): void;
+  loadFile(file: File): void;
+  pickFile(): void;
+  toggle(): void | Promise<void>;
+  skip(seconds: number): void;
+  formatTime(seconds: number): string;
+  render(): void;
+  remove(): void;
+}
+
+export interface WidgetRegistry {
+  widgets: WidgetGroup;
+  calc: WidgetModule;
+  weather: WeatherWidget;
+  monitor: MonitorWidget;
+  nowplaying?: NowPlayingWidget;
+  [key: string]: unknown;
+}
+
+function getWidgetModule(name: string): WidgetModule {
+  return widgets[name] as WidgetModule;
+}
+
+export const widgets: WidgetRegistry = {
   widgets: {
-    add: (arg) => {
+    add: (arg: string) => {
       if (
         $(`.wg.${arg}.menu,.wg.${arg}.toolbar,.wg.${arg}.desktop`).length != 0
       ) {
@@ -21,13 +101,13 @@ export const widgets: any = {
       $('#widgets>.widgets>.content>.grid>.wg.' + arg)
         .removeClass('template')
         .addClass('menu');
-      widgets[arg].init();
+      getWidgetModule(arg).init();
     },
-    remove: (arg) => {
+    remove: (arg: string) => {
       $(`.wg.${arg}.menu,.wg.${arg}.toolbar,.wg.${arg}.desktop`).remove();
-      widgets[arg].remove();
+      getWidgetModule(arg).remove();
     },
-    addToToolbar: (arg) => {
+    addToToolbar: (arg: string) => {
       // widgets.widgets.remove(arg);
       if ($('.wg.toolbar.' + arg).length != 0) {
         return;
@@ -38,9 +118,9 @@ export const widgets: any = {
       $('#toolbar>.wg.' + arg)
         .removeClass('template')
         .addClass('toolbar');
-      widgets[arg].init();
+      getWidgetModule(arg).init();
     },
-    addToDesktop: (arg) => {
+    addToDesktop: (arg: string) => {
       // widgets.widgets.remove(arg);
       if ($('.wg.toolbar.' + arg).length != 0) {
         return;
@@ -52,7 +132,7 @@ export const widgets: any = {
         .removeClass('template')
         .addClass('desktop');
       // setTimeout(() => {
-      widgets[arg].init();
+      getWidgetModule(arg).init();
       // }, 5000);
     },
   },
@@ -62,7 +142,7 @@ export const widgets: any = {
         '.wg.calc:not(.template)>.content>.container>#calc-input-widgets',
         '.wg.calc:not(.template)>.content',
       );
-      (window as any).widgetCalculator = widgetCalculator;
+      window.widgetCalculator = widgetCalculator;
     },
     remove: () => {
       // $('#calc-input-widgets')[0].value = '0';
@@ -162,7 +242,7 @@ export const widgets: any = {
         // console.log(inf.icon,wic[inf.icon]);
         $('.wg.weather>.content>.img').attr(
           'src',
-          `https://assets.msn.cn/weathermapdata/1/static/weather/Icons/taskbar_v10/Condition_Card/${wic[inf.symbol]}.svg`,
+          `https://assets.msn.cn/weathermapdata/1/static/weather/Icons/taskbar_v10/Condition_Card/${(wic as Record<string, string>)[inf.symbol]}.svg`,
         );
         $('.wg.weather>.content>.text>.temperature').text(`${inf.temp}℃`);
         $('.wg.weather>.content>.text>.detail').text(
@@ -196,11 +276,14 @@ export const widgets: any = {
       widgets.monitor.handle = window.setInterval(widgets.monitor.update, 1000);
     },
     update: () => {
+      const circle = $(
+        '*:not(.template)>*>.wg.monitor>.content>.container>svg>circle:last-child',
+      )[0] as unknown as SVGCircleElement;
       $(
         '*:not(.template)>*>.wg.monitor>.content>.container>svg>circle:last-child',
       ).css(
         'stroke-dasharray',
-        `${widgets.monitor.type != 'gpu' ? (widgets.monitor.type.match('wifi') ? (widgets.monitor.type == 'wifi-send' ? (apps.taskmgr.wifi.send / 100) * (Math.PI * $('*:not(.template)>*>.wg.monitor>.content>.container>svg>circle:last-child')[0].r.baseVal.value * 2) : (apps.taskmgr.wifi.receive / 100) * (Math.PI * $('*:not(.template)>*>.wg.monitor>.content>.container>svg>circle:last-child')[0].r.baseVal.value * 2)) : (apps.taskmgr[widgets.monitor.type] / 100) * (Math.PI * $('*:not(.template)>*>.wg.monitor>.content>.container>svg>circle:last-child')[0].r.baseVal.value * 2)) : (apps.taskmgr.gpu.usage / 100) * (Math.PI * $('*:not(.template)>*>.wg.monitor>.content>.container>svg>circle:last-child')[0].r.baseVal.value * 2)}, 170`,
+        `${widgets.monitor.type != 'gpu' ? (widgets.monitor.type.match('wifi') ? (widgets.monitor.type == 'wifi-send' ? (apps.taskmgr.wifi.send / 100) * (Math.PI * circle.r.baseVal.value * 2) : (apps.taskmgr.wifi.receive / 100) * (Math.PI * circle.r.baseVal.value * 2)) : (apps.taskmgr[widgets.monitor.type] / 100) * (Math.PI * circle.r.baseVal.value * 2)) : (apps.taskmgr.gpu.usage / 100) * (Math.PI * circle.r.baseVal.value * 2)}, 170`,
       );
       if (widgets.monitor.type == 'cpu' || widgets.monitor.type == 'gpu') {
         $(
@@ -261,8 +344,8 @@ export const widgets: any = {
     },
   },
 };
-let gridnow;
-export function editMode() {
+let gridnow: DesktopGridPosition;
+export function editMode(): void {
   if (state.editMode) {
     $('#desktop-editbar-container').removeClass('show');
     $('#desktop-widgets').removeClass('edit');
@@ -272,7 +355,10 @@ export function editMode() {
   }
   state.editMode = !state.editMode;
 }
-export function widgetsMove(elt, e) {
+export function widgetsMove(
+  elt: HTMLElement,
+  e: MouseEvent | TouchEvent,
+): void {
   if (elt.classList.contains('desktop') && state.editMode == true) {
     let width = elt.getBoundingClientRect().width;
     let height = elt.getBoundingClientRect().height;
@@ -292,8 +378,12 @@ export function widgetsMove(elt, e) {
         .getComputedStyle($('#desktop-widgets')[0], null)
         .gridTemplateColumns.split(' ').length,
     );
-    let deltaLeft = e.clientX - elt.getBoundingClientRect().left;
-    let deltaTop = e.clientY - elt.getBoundingClientRect().top;
+    let deltaLeft =
+      (isTouchEvent(e) ? e.touches[0].clientX : e.clientX) -
+      elt.getBoundingClientRect().left;
+    let deltaTop =
+      (isTouchEvent(e) ? e.touches[0].clientY : e.clientY) -
+      elt.getBoundingClientRect().top;
     elt.style.position = 'fixed';
     elt.style.width = `${width}px`;
     elt.style.height = `${height}px`;
@@ -304,32 +394,36 @@ export function widgetsMove(elt, e) {
 
     $('#desktop-widgets>.widgets-move').addClass('show');
     // $('#desktop-widgets>.widgets-move').css('cssText', `width: ${width}px; height: ${height}px;`);
-    function widgetsMoving(e) {
+    function widgetsMoving(e: MouseEvent | TouchEvent): void {
       let left = 0,
         top = 0;
-      if (e.type.match('mouse')) {
-        left = e.clientX - deltaLeft;
-        top = e.clientY - deltaTop;
-      } else if (e.type.match('touch')) {
+      if (isTouchEvent(e)) {
         left = e.touches[0].clientX - deltaLeft;
         top = e.touches[0].clientY - deltaTop;
+      } else {
+        left = e.clientX - deltaLeft;
+        top = e.clientY - deltaTop;
       }
       elt.style.left = `${left}px`;
       elt.style.top = `${top}px`;
       // 基于人脑计算 qwq
       gridnow = {
         // 四舍五入 (组件宽度 / 2 + 组件视窗右边距 - 布局右边距) / ((网格总列数 * 网格宽度 + 网格间距 * 网格间距数量) / 网格总数量) - 元素网格列尾 + 校正值)
-        col: (
-          (width / 2 + elt.getBoundingClientRect().right - 20) /
-            ((gridcolmax * 83 + 10 * (gridcolmax - 1)) / gridcolmax) -
-          gridcol
-        ) /* + (gridcol - 2) * 0.5*/
-          .toFixed(0),
-        row: (
-          (height / 2 + top - 20) /
-            ((gridrowmax * 83 + 10 * (gridrowmax - 1)) / gridrowmax) +
-          (2 - gridrow) * 0.5
-        ).toFixed(0),
+        col: Number(
+          (
+            (width / 2 + elt.getBoundingClientRect().right - 20) /
+              ((gridcolmax * 83 + 10 * (gridcolmax - 1)) / gridcolmax) -
+            gridcol
+          ) /* + (gridcol - 2) * 0.5*/
+            .toFixed(0),
+        ),
+        row: Number(
+          (
+            (height / 2 + top - 20) /
+              ((gridrowmax * 83 + 10 * (gridrowmax - 1)) / gridrowmax) +
+            (2 - gridrow) * 0.5
+          ).toFixed(0),
+        ),
       };
       gridnow.col =
         gridnow.col <= Math.floor(gridcol / 2)
@@ -462,7 +556,7 @@ export function widgetsMove(elt, e) {
       $('.wg.nowplaying:not(.template) .nowplaying-file').first().click();
     },
 
-    loadFile: (file) => {
+    loadFile: (file: File) => {
       const labels = widgets.nowplaying.text();
 
       if (widgets.nowplaying.objectUrl) {
@@ -493,7 +587,7 @@ export function widgetsMove(elt, e) {
       widgets.nowplaying.render();
     },
 
-    skip: (seconds) => {
+    skip: (seconds: number) => {
       if (!widgets.nowplaying.audio || !widgets.nowplaying.audio.src) return;
 
       const audio = widgets.nowplaying.audio;
@@ -510,7 +604,7 @@ export function widgetsMove(elt, e) {
       widgets.nowplaying.render();
     },
 
-    formatTime: (seconds) => {
+    formatTime: (seconds: number) => {
       if (!isFinite(seconds)) return '0:00';
 
       const m = Math.floor(seconds / 60);
@@ -609,7 +703,7 @@ export function widgetsMove(elt, e) {
 })();
 
 (function () {
-  function stopDockEvent(event) {
+  function stopDockEvent(event: Event): void {
     if (typeof stop === 'function') {
       stop(event);
     } else {
@@ -624,7 +718,7 @@ export function widgetsMove(elt, e) {
       : null;
   }
 
-  function formatTime(seconds) {
+  function formatTime(seconds: number): string {
     if (!isFinite(seconds)) return '0:00';
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60)
@@ -633,7 +727,7 @@ export function widgetsMove(elt, e) {
     return minutes + ':' + secs;
   }
 
-  function looksLikeBottomDockNowPlaying(el) {
+  function looksLikeBottomDockNowPlaying(el: Element): boolean {
     if (!el || !el.classList || !el.classList.contains('nowplaying'))
       return false;
     if (el.classList.contains('template')) return false;
@@ -651,13 +745,17 @@ export function widgetsMove(elt, e) {
     );
   }
 
-  function dockNowPlayingElements() {
-    return Array.from(document.querySelectorAll('.nowplaying')).filter(
-      looksLikeBottomDockNowPlaying,
-    );
+  function dockNowPlayingElements(): HTMLElement[] {
+    return Array.from(
+      document.querySelectorAll<HTMLElement>('.nowplaying'),
+    ).filter(looksLikeBottomDockNowPlaying);
   }
 
-  function makeIconButton(className, iconClass, title) {
+  function makeIconButton(
+    className: string,
+    iconClass: string,
+    title: string,
+  ): HTMLButtonElement {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = className;
@@ -670,7 +768,7 @@ export function widgetsMove(elt, e) {
     return button;
   }
 
-  function ensureOpenApp(menu) {
+  function ensureOpenApp(menu: HTMLElement): void {
     if (!menu || menu.querySelector('.nowplaying-open-app')) return;
 
     const open = document.createElement('a');
@@ -695,14 +793,14 @@ export function widgetsMove(elt, e) {
     }
   }
 
-  function extractMenu(widget) {
-    let menu = widget.querySelector(':scope > .np-dock-menu');
+  function extractMenu(widget: HTMLElement): HTMLElement {
+    let menu = widget.querySelector<HTMLElement>(':scope > .np-dock-menu');
     if (menu) {
       menu.remove();
       return menu;
     }
 
-    menu = widget.querySelector(
+    menu = widget.querySelector<HTMLElement>(
       ':scope > .titbar > .menu, .titbar .menu, :scope > .menu, .menu',
     );
 
@@ -719,7 +817,7 @@ export function widgetsMove(elt, e) {
     return menu;
   }
 
-  function buildPill(widget) {
+  function buildPill(widget: HTMLElement): void {
     const menu = extractMenu(widget);
     ensureOpenApp(menu);
 
@@ -864,7 +962,7 @@ export function widgetsMove(elt, e) {
     };
   }
 
-  function needsRebuild(widget) {
+  function needsRebuild(widget: HTMLElement): boolean {
     if (!widget.classList.contains('np-dock-nuclear')) return true;
     if (!widget.querySelector(':scope > .np-dock-pill')) return true;
     if (!widget.querySelector(':scope > .np-dock-more')) return true;
@@ -1127,14 +1225,18 @@ export function widgetsMove(elt, e) {
     }, 0);
   }
 
-  function wrapCreateMethod(name) {
+  type WidgetCreateMethod = ((this: unknown, ...args: unknown[]) => unknown) & {
+    _nowplayingCreateWrapped?: boolean;
+  };
+
+  function wrapCreateMethod(name: string): void {
     if (!hasWidgets()) return;
 
-    const original = widgets.widgets[name];
+    const original = widgets.widgets[name] as WidgetCreateMethod | undefined;
     if (typeof original !== 'function' || original._nowplayingCreateWrapped)
       return;
 
-    const wrapped = function (this: unknown, arg) {
+    const wrapped = function (this: unknown, arg: string) {
       const result = original.apply(this, arguments);
 
       if (arg === 'nowplaying') {
@@ -1142,7 +1244,7 @@ export function widgetsMove(elt, e) {
       }
 
       return result;
-    };
+    } as WidgetCreateMethod;
 
     wrapped._nowplayingCreateWrapped = true;
     widgets.widgets[name] = wrapped;

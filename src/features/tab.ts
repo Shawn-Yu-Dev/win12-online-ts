@@ -1,16 +1,30 @@
 import { $, page } from '../core/dom';
 import { apps } from '../core/app-registry';
-import { hidewin, focwin } from '../core/windows';
+import { hidewin, focwin, isTouchEvent } from '../core/windows';
+
+export type TabEntry = [string | number, string];
+
+interface TabApp {
+  tabs: TabEntry[];
+  len: number;
+  now: number;
+  settab(tab: TabEntry, index: number): string;
+  tab(index: number, load?: boolean): void;
+}
+
+function tabApp(name: string): TabApp {
+  return apps[name] as TabApp;
+}
 
 export const m_tab = {
-  closing: new WeakSet(),
-  newtab: (appn, n) => {
-    let app = apps[appn];
+  closing: new WeakSet<TabEntry>(),
+  newtab: (appn: string, n: string): void => {
+    let app = tabApp(appn);
     app.tabs.push([app.len++, n]);
     m_tab.settabs(appn);
   },
-  settabs: (appn) => {
-    let app = apps[appn];
+  settabs: (appn: string): void => {
+    let app = tabApp(appn);
     let html = '';
     for (let i = 0; i < app.tabs.length; i++) {
       const t = app.tabs[i];
@@ -21,21 +35,26 @@ export const m_tab = {
       `<a class="new bi bi-plus" onclick="apps.${appn}.newtab()"></a>`;
     // $(`.window.${appn}>.titbar>.tabs>.tab.`+app.tabs[app.now][0]).addClass('show');
   },
-  moving: (appn, t, ev, np) => {
-    let app = apps[appn];
-    let deltaLeft,
+  moving: (
+    appn: string,
+    t: HTMLElement,
+    ev: MouseEvent | TouchEvent,
+    np: number,
+  ): void => {
+    let app = tabApp(appn);
+    let deltaLeft = 0,
       pos = np;
-    if (ev.type.match('mouse')) {
-      deltaLeft = ev.clientX;
-    } else if (ev.type.match('touch')) {
+    if (isTouchEvent(ev)) {
       deltaLeft = ev.touches[0].clientX;
+    } else {
+      deltaLeft = ev.clientX;
     }
-    function move_f(this: HTMLElement, e) {
-      let x;
-      if (e.type.match('mouse')) {
-        x = e.clientX;
-      } else if (e.type.match('touch')) {
+    function move_f(this: HTMLElement, e: MouseEvent | TouchEvent): void {
+      let x = 0;
+      if (isTouchEvent(e)) {
         x = e.touches[0].clientX;
+      } else {
+        x = e.clientX;
       }
       $(this).css('transform', `translateX(${x - deltaLeft}px)`);
       pos = Math.floor(
@@ -66,7 +85,7 @@ export const m_tab = {
     page.onmousemove = move_f.bind(t);
     page.ontouchmove = move_f.bind(t);
 
-    function up_f(this: HTMLElement, e) {
+    function up_f(this: HTMLElement, e: MouseEvent | TouchEvent): void {
       page.onmousemove = null;
       page.onmouseup = null;
       page.ontouchmove = null;
@@ -100,8 +119,8 @@ export const m_tab = {
     page.ontouchcancel = up_f.bind(t);
     $(t).addClass('moving');
   },
-  close: (appn, c) => {
-    let app = apps[appn];
+  close: (appn: string, c: number): void => {
+    let app = tabApp(appn);
     const tab = app.tabs[c];
     if (!tab || m_tab.closing.has(tab)) {
       return;
@@ -114,7 +133,9 @@ export const m_tab = {
       $(`.window.${appn}>.titbar>.tabs>.tab.${_id}`).addClass('left');
     }
     setTimeout(() => {
-      const currentIndex = app.tabs.findIndex((current) => current[0] == tabId);
+      const currentIndex = app.tabs.findIndex(
+        (current: TabEntry) => current[0] == tabId,
+      );
       if (currentIndex < 0 || app.tabs[currentIndex] !== tab) {
         m_tab.closing.delete(tab);
         return;
@@ -130,16 +151,16 @@ export const m_tab = {
       }
     }, 200);
   },
-  tab: (appn, c, load = true) => {
+  tab: (appn: string, c: number, load = true): void => {
     focwin(appn);
-    let app = apps[appn];
+    let app = tabApp(appn);
     app.now = c;
     app.tab(c, load);
     $(`.window.${appn}>.titbar>.tabs>.tab.show`).removeClass('show');
     $(`.window.${appn}>.titbar>.tabs>.tab.${app.tabs[c][0]}`).addClass('show');
   },
-  rename: (appn, n) => {
-    let app = apps[appn];
+  rename: (appn: string, n: string): void => {
+    let app = tabApp(appn);
     app.tabs[app.now][1] = n;
     m_tab.settabs(appn);
     m_tab.tab(appn, app.now, false);

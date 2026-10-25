@@ -34,4 +34,4 @@ window.onkeydown = (event) => {
 window.ontouchstart = toBIOS;
 document.oncontextmenu = () => false;
 
-(window as any).toBIOS = toBIOS;
+window.toBIOS = toBIOS;

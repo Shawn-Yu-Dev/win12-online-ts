@@ -36,6 +36,7 @@ import {
   focwin,
   taskbarclick,
   resizewin,
+  isTouchEvent,
 } from '../core/windows';
 import { createHistoryStack, createWebapp } from './shared';
 import { m_tab } from '../features/tab';
@@ -70,7 +71,7 @@ const whiteboard = {
       $('.window.whiteboard>.titbar>p').text('Whiteboard');
     }
   },
-  changeColor: (color) => {
+  changeColor: (color: string) => {
     apps.whiteboard.color = color;
     if (color == 'eraser') {
       apps.whiteboard.ctx.strokeStyle = 'black';
@@ -117,16 +118,16 @@ const whiteboard = {
     }
     apps.whiteboard.init();
   },
-  draw: (e) => {
-    let offsetX,
-      offsetY,
+  draw: (e: MouseEvent | TouchEvent) => {
+    let offsetX = 0,
+      offsetY = 0,
       left = $('#win-whiteboard')[0].getBoundingClientRect().left,
       top = $('#win-whiteboard')[0].getBoundingClientRect().top;
-    if (e.type.match('mouse')) {
-      ((offsetX = e.clientX - left), (offsetY = e.clientY - top));
-    } else if (e.type.match('touch')) {
+    if (isTouchEvent(e)) {
       ((offsetX = e.touches[0].clientX - left),
         (offsetY = e.touches[0].clientY - top));
+    } else {
+      ((offsetX = e.clientX - left), (offsetY = e.clientY - top));
     }
     apps.whiteboard.ctx.beginPath();
     apps.whiteboard.ctx.moveTo(offsetX, offsetY);
@@ -136,16 +137,16 @@ const whiteboard = {
     page.ontouchend = apps.whiteboard.up;
     page.ontouchcancel = apps.whiteboard.up;
   },
-  drawing: (e) => {
-    let offsetX,
-      offsetY,
+  drawing: (e: MouseEvent | TouchEvent) => {
+    let offsetX = 0,
+      offsetY = 0,
       left = $('#win-whiteboard')[0].getBoundingClientRect().left,
       top = $('#win-whiteboard')[0].getBoundingClientRect().top;
-    if (e.type.match('mouse')) {
-      ((offsetX = e.clientX - left), (offsetY = e.clientY - top));
-    } else if (e.type.match('touch')) {
+    if (isTouchEvent(e)) {
       ((offsetX = e.touches[0].clientX - left),
         (offsetY = e.touches[0].clientY - top));
+    } else {
+      ((offsetX = e.clientX - left), (offsetY = e.clientY - top));
     }
     apps.whiteboard.ctx.lineTo(offsetX, offsetY);
     apps.whiteboard.ctx.stroke();
@@ -160,8 +161,9 @@ const whiteboard = {
   },
   download: () => {
     const url = apps.whiteboard.canvas.toDataURL();
-    $('#win-whiteboard>a.download')[0].href = url;
-    $('#win-whiteboard>a.download')[0].click();
+    const download = $('#win-whiteboard>a.download')[0] as HTMLAnchorElement;
+    download.href = url;
+    download.click();
   },
   saveAs: () => {
     // Show filename input dialog using notice system

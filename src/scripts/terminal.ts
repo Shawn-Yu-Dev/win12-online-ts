@@ -10,7 +10,7 @@ import { terminalEggs } from './terminal-eggs';
 
 ('use strict');
 // 运行的指令
-export function runcmd(cmd, inTerminal = false) {
+export function runcmd(cmd: string, inTerminal = false): boolean {
   var cmds = cmd.split(' ');
   var commandName = cmds[0].toLowerCase();
 
@@ -71,10 +71,10 @@ STARWARS        ${lang('原力觉醒', 'terminal.help.starwars')}
 
     terminalInput.prop('disabled', true);
     window.win12Native
-      .pingHost(host, ipv6, (output) => {
+      .pingHost(host, ipv6, (output: string) => {
         terminalOutput[0].appendChild(document.createTextNode(output));
       })
-      .catch((error) => {
+      .catch((error: { message?: string } | undefined) => {
         terminalOutput.append(
           (error && error.message ? error.message : String(error)) + '\n',
         );
@@ -245,7 +245,10 @@ shutdown [-s] [-r] [-f] [-a] [-t time]
         const timeFlag = cmds.includes('-t') ? '-t' : '/t';
         const timeIndex = cmds.indexOf(timeFlag);
         // 检查时间参数是否有效
-        if (timeIndex < cmds.length - 1 && !isNaN(cmds[timeIndex + 1])) {
+        if (
+          timeIndex < cmds.length - 1 &&
+          !isNaN(Number(cmds[timeIndex + 1]))
+        ) {
           hasTime = true;
           timeValue = parseInt(cmds[timeIndex + 1]);
         } else {

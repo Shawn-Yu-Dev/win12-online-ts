@@ -4,7 +4,10 @@ import { $ } from '../core/dom';
 
 let previewTimeout: ReturnType<typeof setTimeout> | undefined;
 
-export function showTaskbarPreview(name, event) {
+export function showTaskbarPreview(
+  name: string,
+  event: { currentTarget: EventTarget | null },
+): void {
   clearTimeout(previewTimeout);
 
   const preview = document.getElementById('taskbar-preview');
@@ -34,7 +37,7 @@ export function showTaskbarPreview(name, event) {
   }
   if (win.length) {
     const preview = previewBox;
-    const taskbarItem = $(event.currentTarget);
+    const taskbarItem = $(event.currentTarget as HTMLElement);
     const itemRect = taskbarItem[0].getBoundingClientRect();
 
     // Set window title and icon
@@ -74,7 +77,7 @@ export function showTaskbarPreview(name, event) {
   }
 }
 
-export function hideTaskbarPreview() {
+export function hideTaskbarPreview(): void {
   previewTimeout = setTimeout(() => {
     $('#taskbar-preview').removeClass('show');
   }, 200);

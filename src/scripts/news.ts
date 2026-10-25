@@ -7,7 +7,7 @@ import { apps } from '../core/app-registry';
  * 在线新闻功能
  */
 
-const wait = (duration) =>
+const wait = (duration: number) =>
   new Promise((resolve) => setTimeout(resolve, duration));
 
 interface NewsItem {
@@ -55,15 +55,23 @@ export const news = {
               message: '返回结果中未包含成功信息',
             };
           }
-          const list = data.data.result.data.map((value) => {
-            return {
-              title: value.title,
-              author: value.author_name,
-              category: value.category,
-              url: value.url,
-              image: value.thumbnail_pic_s,
-            };
-          });
+          const list = data.data.result.data.map(
+            (value: {
+              title: string;
+              author_name: string;
+              category: string;
+              url: string;
+              thumbnail_pic_s: string;
+            }) => {
+              return {
+                title: value.title,
+                author: value.author_name,
+                category: value.category,
+                url: value.url,
+                image: value.thumbnail_pic_s,
+              };
+            },
+          );
           return {
             status: 'success',
             data: list,
@@ -84,14 +92,21 @@ export const news = {
         try {
           const response = await fetch(this.url);
           const data = await response.json();
-          const list = data.news.map((value) => {
-            return {
-              title: value.title,
-              hint: value.hint,
-              url: value.url,
-              image: value.image,
-            };
-          });
+          const list = data.news.map(
+            (value: {
+              title: string;
+              hint: string;
+              url: string;
+              image: string;
+            }) => {
+              return {
+                title: value.title,
+                hint: value.hint,
+                url: value.url,
+                image: value.image,
+              };
+            },
+          );
           return {
             status: 'success',
             data: list,
@@ -124,7 +139,7 @@ export const news = {
     this.refresh();
     this.setupExecuted = true;
   },
-  setSource(index) {
+  setSource(index: number) {
     this.selectedSource = index;
     this.refresh();
   },
@@ -146,7 +161,7 @@ export const news = {
       );
       return;
     }
-    const genCardHTML = async (data, classList = '') => {
+    const genCardHTML = async (data: NewsItem, classList = '') => {
       return `
 <div class="card ${classList}" style="background: url(${data.image}) right;">
     <p class="tit">${await this.parseToHTMLString(data.title)}</p>
@@ -195,7 +210,7 @@ ${contentNewsHTML}
       fullTipEl.classList.remove('hidden');
     }
   },
-  async parseToHTMLString(str) {
+  async parseToHTMLString(str: string) {
     let element = document.createElement('span');
     element.innerText = str;
     return element.innerHTML;

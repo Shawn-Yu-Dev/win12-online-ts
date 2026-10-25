@@ -220,7 +220,7 @@ export function initPwa(): void {
     }
   }
 }
-export function sendToSw(msg) {
+export function sendToSw(msg: unknown): void {
   // 首次加载时 controller 可能尚未就绪（checkUpdate 会在注册完成前调用本函数）
   if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return;
   navigator.serviceWorker.controller.postMessage(msg);
@@ -244,10 +244,12 @@ export function setupGlobalKey() {
 
     // 激活键：Meta / Meta + Ctrl / Alt
     if ((event.metaKey && !event.altKey) || (!event.metaKey && event.altKey)) {
+      // jQuery 的 KeyDownEvent 没有声明原生的 repeat 字段，保留原来的取值语义。
+      const repeat = (event as unknown as { repeat?: boolean }).repeat;
       //按下激活键 + E，打开文件资源管理器（此电脑）
       if ((event.key || '').toLowerCase() == 'e') {
         event.preventDefault();
-        if (!event.repeat) {
+        if (!repeat) {
           openapp('explorer');
           apps.explorer.reset();
         }
@@ -256,7 +258,7 @@ export function setupGlobalKey() {
       //按下激活键 + I，打开设置
       if ((event.key || '').toLowerCase() == 'i') {
         event.preventDefault();
-        if (!event.repeat) {
+        if (!repeat) {
           openapp('setting');
         }
         return;

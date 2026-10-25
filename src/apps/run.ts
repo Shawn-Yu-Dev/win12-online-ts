@@ -63,7 +63,7 @@ const run = {
       $('#win-run>.open>input').select();
     }, 300);
   },
-  run: (cmd) => {
+  run: (cmd: string) => {
     if (!runcmd(cmd)) {
       if (cmd != '') {
         try {
@@ -71,7 +71,7 @@ const run = {
           var pathl = cmd.split('/');
           let tmp = apps.explorer.getPath();
           let valid = true;
-          pathl.forEach((name) => {
+          pathl.forEach((name: string) => {
             if (Object.prototype.hasOwnProperty.call(tmp['folder'], name)) {
               tmp = tmp['folder'][name];
             } else {

@@ -85,7 +85,9 @@ const edge = {
       `<iframe src="mainpage.html" frameborder="0" class="${apps.edge.tabs[apps.edge.tabs.length - 1][0]}">`,
     );
     $('#win-edge>.tool>input.url').focus();
-    $('#win-edge>iframe')[apps.edge.tabs.length - 1].onload = function () {
+    $('#win-edge>iframe')[apps.edge.tabs.length - 1].onload = function (
+      this: HTMLIFrameElement,
+    ) {
       this.contentDocument.querySelector('input').onkeyup = function (e) {
         if (e.keyCode == 13 && $(this).val() != '') {
           apps.edge.goto($(this).val());
@@ -126,7 +128,7 @@ const edge = {
     $('.edge>.content>.tool').show();
     apps.edge.fuls = !apps.edge.fuls;
   },
-  in_div(id, event) {
+  in_div(id: string, event: MouseEvent) {
     var div = document.getElementById(id);
     var x = event.clientX;
     var y = event.clientY;
@@ -142,14 +144,14 @@ const edge = {
       return true;
     }
   },
-  settab: (t, i) => {
+  settab: (t: readonly [string | number, string], i: number) => {
     if ($('.window.edge>.titbar>.tabs>.tab.' + t[0] + '>.reloading')[0]) {
       return `<div class="tab ${t[0]}" onclick="m_tab.tab('edge',${i})" oncontextmenu="showcm(event,'edge.tab',${i});stop(event);return false" onmousedown="m_tab.moving('edge',this,event,${i});stop(event);disableIframes();" ontouchstart="m_tab.moving('edge',this,event,${i});stop(event);disableIframes();">${apps.edge.reloadElt}<p>${t[1]}</p><span class="clbtn bi bi-x" onclick="m_tab.close('edge',${i})"></span></div>`;
     } else {
       return `<div class="tab ${t[0]}" onclick="m_tab.tab('edge',${i})" oncontextmenu="showcm(event,'edge.tab',${i});stop(event);return false" onmousedown="m_tab.moving('edge',this,event,${i});stop(event);disableIframes();" ontouchstart="m_tab.moving('edge',this,event,${i});stop(event);disableIframes();"><p>${t[1]}</p><span class="clbtn bi bi-x" onclick="m_tab.close('edge',${i})"></span></div>`;
     }
   },
-  tab: (c) => {
+  tab: (c: number) => {
     $('#win-edge>iframe.show').removeClass('show');
     $('#win-edge>iframe.' + apps.edge.tabs[c][0]).addClass('show');
     $('#win-edge>.tool>input.url').val(
@@ -161,7 +163,7 @@ const edge = {
     $('#win-edge>.tool>input.rename').removeClass('show');
     apps.edge.checkHistory(apps.edge.tabs[apps.edge.now][0]);
   },
-  c_rename: (c) => {
+  c_rename: (c: number) => {
     m_tab.tab('edge', c);
     $('#win-edge>.tool>input.rename').val(apps.edge.tabs[apps.edge.now][1]);
     $('#win-edge>.tool>input.rename').addClass('show');
@@ -191,7 +193,7 @@ const edge = {
           '.window.edge>.titbar>.tabs>.tab.' + apps.edge.tabs[apps.edge.now][0],
         )[0].insertAdjacentHTML('afterbegin', apps.edge.reloadElt);
         $('#win-edge>iframe.' + apps.edge.tabs[apps.edge.now][0])[0].onload =
-          function () {
+          function (this: HTMLIFrameElement) {
             $(
               '.window.edge>.titbar>.tabs>.tab.' + this.classList[0],
             )[0].removeChild(
@@ -205,7 +207,7 @@ const edge = {
       }
     }
   },
-  getTitle: async (url, tabId) => {
+  getTitle: async (url: string, tabId: string | number) => {
     const requestToken = {};
     apps.edge.titleRequests.set(tabId, requestToken);
     try {
@@ -215,7 +217,9 @@ const edge = {
       if (!response.ok) return;
       const text = await response.text();
       if (apps.edge.titleRequests.get(tabId) !== requestToken) return;
-      const tabIndex = apps.edge.tabs.findIndex((tab) => tab[0] === tabId);
+      const tabIndex = apps.edge.tabs.findIndex(
+        (tab: readonly [string | number, string]) => tab[0] === tabId,
+      );
       if (tabIndex < 0) return;
       apps.edge.tabs[tabIndex][1] = text;
       m_tab.settabs('edge');
@@ -227,7 +231,7 @@ const edge = {
       console.warn('Unable to load page title:', error);
     }
   },
-  goto: (u, clear = true) => {
+  goto: (u: unknown, clear = true) => {
     const currentTab = apps.edge.tabs[apps.edge.now];
     if (!currentTab) return;
     const requestedValue = String(u == null ? '' : u).trim();
@@ -265,7 +269,7 @@ const edge = {
         )[0].insertAdjacentHTML('afterbegin', apps.edge.reloadElt);
       }
       $('#win-edge>iframe.' + apps.edge.tabs[apps.edge.now][0])[0].onload =
-        function () {
+        function (this: HTMLIFrameElement) {
           $(
             '.window.edge>.titbar>.tabs>.tab.' + this.classList[0],
           )[0].removeChild(

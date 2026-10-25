@@ -60,7 +60,7 @@ const imgviewer = {
   _scale: 1,
   _rotate: 0,
   init: () => {},
-  open: (url, name) => {
+  open: (url: string, name: string) => {
     openapp('imgviewer');
     apps.imgviewer._blobUrl = url;
     apps.imgviewer._scale = 1;

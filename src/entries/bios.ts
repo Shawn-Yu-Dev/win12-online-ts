@@ -2,11 +2,11 @@ import { $, installJQueryGlobal } from '../core/dom';
 
 installJQueryGlobal();
 
-export function addZero(i) {
+export function addZero(i: number): string | number {
   return i < 10 ? `0${i}` : i;
 }
 
-export function timeChange() {
+export function timeChange(): void {
   const d = new Date();
   $('#time')[0].innerText =
     `[${addZero(d.getHours())}:${addZero(d.getMinutes())}:${addZero(d.getSeconds())}]`;
@@ -14,7 +14,7 @@ export function timeChange() {
     `[${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}]`;
 }
 
-export function toBoot() {
+export function toBoot(): void {
   setTimeout(() => {
     $('#body').html('');
     $('#body').css('cssText', 'background-color: black;');
@@ -24,7 +24,7 @@ export function toBoot() {
   }, 1000);
 }
 
-export function BIOS_confirm(tit, func) {
+export function BIOS_confirm(tit: string, func: string): void {
   $('#confirm-tit')[0].innerText = tit;
   $('#confirmContainer').css('display', 'flex');
   $('#confirm').attr('data-show', 'true');
@@ -35,7 +35,7 @@ export function BIOS_confirm(tit, func) {
   );
 }
 
-export function changePage(t) {
+export function changePage(t: number): void {
   $('.tab.show').removeClass('show');
   $('.tab.foc').removeClass('foc');
   $(`.tab${t}`).addClass('show');
@@ -69,7 +69,7 @@ export const biosConfig = {
   tpmState: true,
 };
 
-export function toggleOption(optionElement) {
+export function toggleOption(optionElement: HTMLElement): string | boolean {
   const currentValue = optionElement.innerText;
   if (currentValue.includes('Enabled')) {
     optionElement.innerText = '[Disabled]';
@@ -90,7 +90,7 @@ export function toggleOption(optionElement) {
   return currentValue;
 }
 
-export function handleExitOption(option) {
+export function handleExitOption(option: Element): void {
   const action = $(option).attr('onclick') || '';
   if (action.includes('toBoot()')) {
     toBoot();
@@ -103,7 +103,7 @@ export function handleExitOption(option) {
   }
 }
 
-export function updateFocus() {
+export function updateFocus(): void {
   // Clear all focus states first
   $('.option').css('background-color', '#aaaaaa');
   $('.option').css('color', '#0100a2');
@@ -137,7 +137,7 @@ changePage(0);
 document.oncontextmenu = () => false;
 
 window.onkeydown = (evt) => {
-  const event = evt || window.event;
+  const event = evt;
 
   if ($('#confirm').attr('data-show') !== 'true') {
     if (event.keyCode === 9) {
@@ -207,7 +207,9 @@ window.onkeydown = (evt) => {
           const newValue = toggleOption(focusedOption);
           const optionId = $(focusedOption).attr('data-option');
           if (optionId) {
-            biosConfig[optionId] = newValue;
+            (biosConfig as unknown as Record<string, string | boolean>)[
+              optionId
+            ] = newValue;
           }
         }
       }
@@ -247,7 +249,8 @@ for (const option of document.querySelectorAll('.option')) {
     const newValue = toggleOption(this);
     const optionId = this.getAttribute('data-option');
     if (optionId) {
-      biosConfig[optionId] = newValue;
+      (biosConfig as unknown as Record<string, string | boolean>)[optionId] =
+        newValue;
     }
   });
 }

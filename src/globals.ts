@@ -94,13 +94,15 @@ import { appCalculator } from './scripts/calculator';
 import { server, pages } from './core/api';
 
 function expose(name: string, value: unknown): void {
-  (window as any)[name] = value;
+  // Keep using a plain record view of `window`; the runtime contract is that
+  // templates and inline handlers resolve these names from the global object.
+  (window as unknown as Record<string, unknown>)[name] = value;
 }
 
-function defineStateProp(
+function defineStateProp<T>(
   name: string,
-  get: () => unknown,
-  set?: (value: any) => void,
+  get: () => T,
+  set?: (value: T) => void,
 ): void {
   Object.defineProperty(window, name, {
     configurable: true,

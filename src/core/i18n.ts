@@ -4,7 +4,7 @@ import '../vendor/jquery.i18n.properties';
 
 export function i18nOrNull(key?: string | null): string | null {
   if (!key) return null;
-  const value = ($ as any).i18n.prop(key);
+  const value = $.i18n.prop(key);
   if (value === undefined || value === null) return null;
   if (value === '[' + key + ']') return null;
   return value;
@@ -23,7 +23,7 @@ function applyTranslations(): void {
 }
 
 export function loadlang(code: string): void {
-  ($ as any).i18n.properties({
+  $.i18n.properties({
     name: 'lang',
     path: 'lang/lang/',
     language: code,

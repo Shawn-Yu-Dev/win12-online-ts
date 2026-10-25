@@ -55,6 +55,13 @@ import { closeVideo } from '../core/video';
 import { toggletheme } from '../shell/theme';
 import { setIcon, saveDesktop } from '../shell/desktop';
 
+interface GitHubContributor {
+  login: string;
+  html_url: string;
+  avatar_url: string;
+  contributions: number;
+}
+
 const about = {
   repo: () => {
     return isTauriApp()
@@ -73,7 +80,7 @@ const about = {
     if (isTauriApp() && !$('#ReleaseShowDesktop>details').length)
       apps.about.get_releases();
   },
-  page: (name) => {
+  page: (name: string) => {
     const suffix = apps.about.contentSuffix();
     $('#win-about>.cnt').removeClass('show');
     $(`#win-about>.${name}-${suffix}`).addClass('show');
@@ -86,12 +93,12 @@ const about = {
   starSelector: () => {
     return isTauriApp() ? '#StarShowDesktop' : '#StarShow';
   },
-  run_loading: (expr) => {
+  run_loading: (expr: string) => {
     $(expr).html(`<loading><svg width="30px" height="30px" viewBox="0 0 16 16">
             <circle cx="8px" cy="8px" r="7px" style="stroke:#7f7f7f50;fill:none;stroke-width:3px;"></circle>
             <circle cx="8px" cy="8px" r="7px" style="stroke:#2983cc;stroke-width:3px;"></circle></svg></loading>`);
   },
-  escape_html: (text) => {
+  escape_html: (text: string) => {
     return String(text || '').replace(
       /[&<>"']/g,
       (ch) =>
@@ -104,7 +111,7 @@ const about = {
         })[ch],
     );
   },
-  render_release_body: (body) => {
+  render_release_body: (body: string) => {
     const text = body || '此发行版没有填写发行日志。';
     if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
       const html = marked.parse(text);
@@ -161,7 +168,7 @@ const about = {
     ).then((cs) => {
       setTimeout(() => {
         $(selector).html('');
-        cs.forEach((c) => {
+        cs.forEach((c: GitHubContributor) => {
           $(selector).append(
             `<a class="a" title="${c['login']}" onclick="window.open('${c['html_url']}','_blank');"><img class="avatar" src="${c['avatar_url']}" alt="${c['login']}"><span class="info"><p class="name">${c['login']}</p><p class="cbs">贡献 <span class="num">${c['contributions']}</span></p></span></a>`,
           );
@@ -197,7 +204,7 @@ const about = {
       });
   },
 
-  get_star_fail: (selector) => {
+  get_star_fail: (selector: string) => {
     setTimeout(() => {
       $(selector).html(
         '<div style="display: flex;"><p>&emsp;&emsp;Star 数量：获取失败</p>&emsp;<a class="button" onclick="apps.about.get_star()"><i class="bi bi-arrow-clockwise"></i> 重试</a></div>',

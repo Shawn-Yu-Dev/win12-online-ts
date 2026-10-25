@@ -58,10 +58,10 @@ import { setIcon, saveDesktop } from '../shell/desktop';
 const camera = {
   requestGeneration: 0,
   deviceLostTimer: null,
-  init: () => {
+  init: (): void => {
     if (!localStorage.getItem('camera')) {
       showwin('camera-notice');
-      return null;
+      return;
     }
     if (localStorage.getItem('camera')) {
       const requestGeneration = ++apps.camera.requestGeneration;
@@ -86,9 +86,11 @@ const camera = {
       }
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: false })
-        .then((stream) => {
+        .then((stream: MediaStream) => {
           if (requestGeneration !== apps.camera.requestGeneration) {
-            stream.getTracks().forEach((track) => track.stop());
+            stream
+              .getTracks()
+              .forEach((track: MediaStreamTrack) => track.stop());
             return;
           }
           video.srcObject = stream;
@@ -127,21 +129,21 @@ const camera = {
     const video = apps.camera.video;
     const stream = video && video.srcObject;
     if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
+      stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
     }
     if (video) video.srcObject = null;
   },
-  markDeviceLost: (requestGeneration) => {
+  markDeviceLost: (requestGeneration: number) => {
     if (requestGeneration !== apps.camera.requestGeneration) return;
     apps.camera.streaming = false;
     const video = apps.camera.video;
     if (video) video.srcObject = null;
     apps.camera.showError();
   },
-  watchTracks: (stream, requestGeneration) => {
+  watchTracks: (stream: MediaStream, requestGeneration: number) => {
     const tracks =
       typeof stream.getVideoTracks == 'function' ? stream.getVideoTracks() : [];
-    tracks.forEach((track) => {
+    tracks.forEach((track: MediaStreamTrack) => {
       track.addEventListener('ended', () => {
         apps.camera.markDeviceLost(requestGeneration);
       });
@@ -217,7 +219,7 @@ const camera = {
     const video = apps.camera.video;
     const stream = video && video.srcObject;
     if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
+      stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
     }
     if (video) video.srcObject = null;
     if (apps.camera.windowResizeObserver) {

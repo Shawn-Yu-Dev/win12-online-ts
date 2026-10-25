@@ -7,9 +7,26 @@ import { closeVideo } from '../core/video';
 
 // 窗口操作模块
 
+/** Direction handled by the resize knobs rendered in the window template. */
+export type ResizeDirection =
+  | 'top'
+  | 'left'
+  | 'right'
+  | 'bottom'
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right';
+
+export type WindowTarget = 'window' | 'configs';
+
+export function isTouchEvent(e: MouseEvent | TouchEvent): e is TouchEvent {
+  return 'touches' in e;
+}
+
 /***** 项目一级保护代码 *****
  未经允许，严禁擅改，否则可致灾难性错误 */
-export function showwin(name) {
+export function showwin(name: string): void {
   $('.window.' + name).addClass('show-begin');
   setTimeout(() => {
     $('.window.' + name).addClass('show');
@@ -38,7 +55,7 @@ export function showwin(name) {
   }
 }
 
-export function hidewin(name, arg = 'window') {
+export function hidewin(name: string, arg: WindowTarget = 'window'): void {
   const win = $('.window.' + name);
   win.removeClass('notrans');
   win.removeClass('max');
@@ -103,7 +120,7 @@ export function hidewin(name, arg = 'window') {
   }
 }
 
-export function maxwin(name, trigger = true) {
+export function maxwin(name: string, trigger = true): void {
   if ($('.window.' + name).hasClass('max')) {
     $('.window.' + name).removeClass('left');
     $('.window.' + name).removeClass('right');
@@ -166,7 +183,7 @@ export function maxwin(name, trigger = true) {
     $('#dock-box').removeClass('hide');
   }
 }
-export function minwin(name) {
+export function minwin(name: string): void {
   if ($('.window.' + name).hasClass('min')) {
     $('.window.' + name).addClass('show-begin');
     focwin(name);
@@ -216,7 +233,11 @@ export function minwin(name) {
   }
 }
 
-export function resizewin(win, arg, resizeElt) {
+export function resizewin(
+  win: HTMLElement,
+  arg: ResizeDirection,
+  resizeElt: HTMLElement,
+): void {
   page.onmousemove = function (e) {
     win_resizing(win, e, arg);
   };
@@ -236,7 +257,11 @@ export function resizewin(win, arg, resizeElt) {
   page.ontouchcancel = up_f;
   page.style.cursor = window.getComputedStyle(resizeElt, null).cursor;
 }
-export function win_resizing(win: HTMLElement, e: any, arg: string) {
+export function win_resizing(
+  win: HTMLElement,
+  e: MouseEvent | TouchEvent,
+  arg: ResizeDirection,
+): void {
   let x = 0,
     y = 0,
     minWidth = Number(win.dataset.minWidth) || 400,
@@ -245,12 +270,12 @@ export function win_resizing(win: HTMLElement, e: any, arg: string) {
     offsetTop = win.getBoundingClientRect().top,
     offsetRight = win.getBoundingClientRect().right,
     offsetBottom = win.getBoundingClientRect().bottom;
-  if (e.type.match('mouse')) {
-    x = e.clientX;
-    y = e.clientY;
-  } else if (e.type.match('touch')) {
+  if (isTouchEvent(e)) {
     x = e.touches[0].clientX;
     y = e.touches[0].clientY;
+  } else {
+    x = e.clientX;
+    y = e.clientY;
   }
   if (arg == 'right' && x - offsetLeft >= minWidth) {
     win.style.width = x - offsetLeft + 'px';
@@ -334,8 +359,8 @@ export function win_resizing(win: HTMLElement, e: any, arg: string) {
     }
   }
 }
-let wo = [];
-export function windowIsOpen(name) {
+let wo: string[] = [];
+export function windowIsOpen(name: string): boolean {
   return (
     typeof name == 'string' &&
     name.length > 0 &&
@@ -343,15 +368,15 @@ export function windowIsOpen(name) {
       $('#taskbar>.' + name).length > 0)
   );
 }
-export function removeWindowFromOrder(name) {
+export function removeWindowFromOrder(name: string): void {
   for (let i = wo.length - 1; i >= 0; i--) {
     if (wo[i] == name) {
       wo.splice(i, 1);
     }
   }
 }
-export function normalizeWindowOrder() {
-  const seen = new Set();
+export function normalizeWindowOrder(): void {
+  const seen = new Set<string>();
   for (let i = 0; i < wo.length;) {
     const name = wo[i];
     if (!windowIsOpen(name) || seen.has(name)) {
@@ -362,11 +387,11 @@ export function normalizeWindowOrder() {
     }
   }
 }
-export function clearWindowFocus() {
+export function clearWindowFocus(): void {
   $('#taskbar>.foc').removeClass('foc');
   $('.window.foc').removeClass('foc');
 }
-export function orderwin() {
+export function orderwin(): void {
   normalizeWindowOrder();
   for (let i = 0; i < wo.length; i++) {
     const win = $('.window.' + wo[wo.length - i - 1]);
@@ -385,9 +410,9 @@ let deltaLeft = 0,
   filty = 'none',
   bfLeft = 0,
   bfTop = 0;
-export function win_move(this: HTMLElement, e: any) {
-  let cx, cy;
-  if (e.type == 'touchmove') {
+export function win_move(this: HTMLElement, e: MouseEvent | TouchEvent): void {
+  let cx: number, cy: number;
+  if (isTouchEvent(e)) {
     ((cx = e.targetTouches[0].clientX), (cy = e.targetTouches[0].clientY));
   } else {
     ((cx = e.clientX), (cy = e.clientY));
@@ -588,7 +613,7 @@ export function initWindowDrag(): void {
 }
 
 // 屎山警告
-export function focwin(name, arg = 'window') {
+export function focwin(name: string, arg: WindowTarget = 'window'): boolean {
   if (!windowIsOpen(name)) {
     return false;
   }
@@ -603,7 +628,7 @@ export function focwin(name, arg = 'window') {
   $('.window.' + name).addClass('foc');
   return true;
 }
-export function taskbarclick(name) {
+export function taskbarclick(name: string): void {
   if ($('.window.' + name).hasClass('foc')) {
     minwin(name);
     // focwin(null);

@@ -9,27 +9,30 @@ export interface BatteryInfo {
   charging?: boolean;
 }
 
-type TauriInvoke = (
+type TauriInvoke = <T = unknown>(
   command: string,
   args?: Record<string, unknown>,
-) => Promise<any>;
+) => Promise<T>;
 
-interface TauriGlobal {
+interface TauriEvent<T> {
+  payload?: T;
+}
+
+export interface TauriGlobal {
   core?: { invoke: TauriInvoke };
   event?: {
-    listen: (
+    listen<T = unknown>(
       event: string,
-      handler: (event: any) => void,
-    ) => Promise<() => void>;
+      handler: (event: TauriEvent<T>) => void,
+    ): Promise<() => void>;
   };
 }
 
-declare global {
-  interface Window {
-    __TAURI__?: TauriGlobal;
-    win12Native?: any;
-    win12WebGL?: any;
-  }
+/** Minimal surface of the WebGL renderer exposed on `window`. */
+export interface Win12WebGLBridge {
+  init(): void;
+  apply(mode: string): string;
+  getMode(): string;
 }
 
 const tauri = () => window.__TAURI__;
@@ -60,7 +63,7 @@ export const win12Native = {
       newPassword,
     });
   },
-  async checkAppUpdate(): Promise<any> {
+  async checkAppUpdate(): Promise<unknown> {
     if (!this.isTauri()) throw new Error('Windows 更新仅在 Tauri App 中可用');
     return tauri()!.core!.invoke('check_app_update');
   },
@@ -86,14 +89,20 @@ export const win12Native = {
     }
 
     const requestId = `ping-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    let resolveFinished!: (value: any) => void;
-    const finished = new Promise((resolve) => {
+    let resolveFinished!: (value: unknown) => void;
+    const finished = new Promise<unknown>((resolve) => {
       resolveFinished = resolve;
     });
 
-    const unlisten = await tauri()!.event!.listen(
+    interface PingOutputEvent {
+      request_id?: string;
+      text?: string;
+      done?: boolean;
+    }
+
+    const unlisten = await tauri()!.event!.listen<PingOutputEvent>(
       'win12://ping-output',
-      (event: any) => {
+      (event: TauriEvent<PingOutputEvent>) => {
         const payload = event.payload || {};
         if (payload.request_id !== requestId) return;
         if (payload.text && onOutput) onOutput(payload.text);
@@ -113,6 +122,14 @@ export const win12Native = {
     }
   },
 };
+
+declare global {
+  interface Window {
+    __TAURI__?: TauriGlobal;
+    win12Native?: typeof win12Native;
+    win12WebGL?: Win12WebGLBridge;
+  }
+}
 
 window.win12Native = win12Native;
 

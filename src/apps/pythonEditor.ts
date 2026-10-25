@@ -57,8 +57,8 @@ import { setIcon, saveDesktop } from '../shell/desktop';
 
 const pythonEditor = {
   editor: null,
-  init: () => {
-    return null;
+  init: (): void => {
+    return;
   },
   run: () => {
     let result;

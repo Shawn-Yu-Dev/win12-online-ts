@@ -1,7 +1,7 @@
 import { $ } from '../core/dom';
 
 // 悬停提示
-export function showdescp(e) {
+export function showdescp(e: MouseEvent): void {
   if ($('#notice-back').hasClass('show')) return;
   $(e.target).attr('data-descp', 'waiting');
   setTimeout(() => {
@@ -33,7 +33,7 @@ export function showdescp(e) {
     }, 100);
   }, 500);
 }
-export function hidedescp(e) {
+export function hidedescp(e: MouseEvent): void {
   $('#descp').removeClass('show');
   $(e.target).attr('data-descp', 'hide');
   setTimeout(() => {
