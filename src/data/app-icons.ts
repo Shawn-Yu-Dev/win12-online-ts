@@ -22,3 +22,7 @@ export const icon = {
   mediaplayer: 'files/vidio.png',
   pdfviewer: 'files/pdf.svg',
 };
+
+export function geticon(name: string): string {
+  return (icon as Record<string, string>)[name] || name + '.svg';
+}

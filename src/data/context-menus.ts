@@ -1,8 +1,7 @@
 import { lang, getAboutAppTitle } from '../core/i18n';
 import { apps } from '../core/app-registry';
 import { state } from '../core/state';
-import { nomax, nomin } from './app-icons';
-import { geticon } from '../shell/taskbar';
+import { nomax, nomin, geticon } from './app-icons';
 import type { ContextMenuEntry } from '../core/app-types';
 
 export const cms: Record<string, ContextMenuEntry[]> = {

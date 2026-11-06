@@ -2,7 +2,7 @@ import { $, page } from '../core/dom';
 import { apps } from '../core/app-registry';
 import { state } from '../core/state';
 import { nomax } from '../data/app-icons';
-import { syncTaskbarLayout } from '../shell/taskbar';
+import { syncTaskbarLayout } from './taskbar-layout';
 import { closeVideo } from '../core/video';
 
 // 窗口操作模块
