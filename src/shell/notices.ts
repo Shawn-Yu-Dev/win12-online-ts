@@ -1,6 +1,7 @@
 import { $ } from '../core/dom';
 import { focusHighestBlockingLayer } from '../core/accessibility';
 import { nts } from '../data/notices';
+import { closeTaskbarPreview } from './preview';
 
 let noticePreviousFocus: HTMLElement | null = null;
 let noticeOpenTimer: ReturnType<typeof setTimeout> | null = null;
@@ -12,7 +13,7 @@ export function dismissTransientOverlaysForModal(): void {
   // inert can suppress that event.  Leaving a higher-z-index inert overlay
   // visible would recreate a "visible but unclickable" surface above modal.
   $('#cm, #dp, #descp').removeClass('show show-begin');
-  $('#taskbar-preview').removeClass('show');
+  closeTaskbarPreview();
   $('[data-descp]').attr('data-descp', 'hide');
 }
 

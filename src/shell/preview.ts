@@ -77,37 +77,15 @@ export function showTaskbarPreview(
   }
 }
 
-export function hideTaskbarPreview(): void {
-  previewTimeout = setTimeout(() => {
-    $('#taskbar-preview').removeClass('show');
-  }, 200);
+export function closeTaskbarPreview(): void {
+  $('#taskbar-preview').removeClass('show');
 }
 
-// Add hover events to taskbar items
-$(document).on('mouseenter', '#taskbar>a', function (this: HTMLElement, e) {
-  const name = this.className.split(' ')[0];
-  showTaskbarPreview(name, e);
-});
-
-$(document).on('mouseleave', '#taskbar>a', function () {
-  hideTaskbarPreview();
-});
-
-// Add hover events to preview
-$(document).on('mouseenter', '#taskbar-preview', function () {
-  clearTimeout(previewTimeout);
-});
-
-$(document).on('mouseleave', '#taskbar-preview', function () {
-  hideTaskbarPreview();
-});
+export function hideTaskbarPreview(): void {
+  previewTimeout = setTimeout(closeTaskbarPreview, 200);
+}
 
 export function initTaskbarPreview(): void {
-  $(document).on('mouseenter', '#taskbar>a', function (this: HTMLElement, e) {
-    const name = this.className.split(' ')[0];
-    showTaskbarPreview(name, e);
-  });
-  $(document).on('mouseleave', '#taskbar>a', hideTaskbarPreview);
   $(document).on('mouseenter', '#taskbar-preview', () =>
     clearTimeout(previewTimeout),
   );

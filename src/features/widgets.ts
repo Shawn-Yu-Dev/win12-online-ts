@@ -4,6 +4,8 @@ import { state } from '../core/state';
 import { lang } from '../core/i18n';
 import { Calculator } from '../scripts/calculator';
 import { openapp } from '../shell/launcher';
+import { closeTaskbarPreview } from '../shell/preview';
+import { isInTaskbar } from '../shell/taskbar';
 import { isTouchEvent } from '../core/windows';
 
 let widgetCalculator: Calculator | null = null; // 小组件功能
@@ -736,7 +738,7 @@ export function widgetsMove(
     const rect = el.getBoundingClientRect();
     const isSmallDockSized = rect.height <= 120 && rect.width <= 460;
     const nearBottom = rect.bottom > window.innerHeight - 150;
-    const inKnownDock = !!el.closest('#taskbar,.dock,.toolbar');
+    const inKnownDock = isInTaskbar(el) || !!el.closest('.dock,.toolbar');
 
     return (
       el.classList.contains('toolbar') ||
@@ -1002,8 +1004,7 @@ export function widgetsMove(
         : 'bi bi-play-fill';
     });
 
-    const preview = document.querySelector('#taskbar-preview');
-    if (preview) preview.classList.remove('show');
+    closeTaskbarPreview();
 
     document
       .querySelectorAll(
