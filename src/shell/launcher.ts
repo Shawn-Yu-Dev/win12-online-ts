@@ -3,7 +3,7 @@ import { apps } from '../core/app-registry';
 import { state } from '../core/state';
 import { lang } from '../core/i18n';
 import { taskmgrTasks } from '../data/tasks';
-import { geticon, syncTaskbarLayout } from './taskbar';
+import { addTaskbarItem, geticon, hasTaskbarItem } from './taskbar';
 import { showcm } from './context-menu';
 import { showdescp, hidedescp } from './tooltip';
 import { icon } from '../data/app-icons';
@@ -37,7 +37,7 @@ export function openapp(name: string, bypassPreOpenNotice = false): void {
       taskmgrTasks.find((elt) => elt.link == name),
     );
   }
-  if ($('#taskbar>.' + name).length != 0) {
+  if (hasTaskbarItem(name)) {
     if ($('.window.' + name).hasClass('min')) {
       minwin(name);
     }
@@ -46,14 +46,7 @@ export function openapp(name: string, bypassPreOpenNotice = false): void {
   }
   $('.window.' + name).addClass('load');
   showwin(name);
-  $('#taskbar').append(
-    `<a class="${name}" onclick="taskbarclick('${name}\')" win12_title="${$(`.window.${name}>.titbar>p`).text()}" onmouseenter="showdescp(event)" onmouseleave="hidedescp(event)" oncontextmenu="return showcm(event, 'taskbar', '${name}')"><img src="icon/${geticon(name)}"></a>`,
-  );
-  syncTaskbarLayout();
-  $('#taskbar>.' + name).addClass('foc');
-  setTimeout(() => {
-    syncTaskbarLayout();
-  }, 0);
+  addTaskbarItem(name);
   let tmp = name.replace(/\-(\w)/g, function (all, letter) {
     return letter.toUpperCase();
   });

@@ -51,7 +51,7 @@ import { icon, nomax, nomin } from '../data/app-icons';
 import { nts } from '../data/notices';
 import { cms } from '../data/context-menus';
 import { dps } from '../data/dock-panels';
-import { geticon } from '../shell/taskbar';
+import { geticon, hasTaskbarItem } from '../shell/taskbar';
 import { closeVideo } from '../core/video';
 import { toggletheme } from '../shell/theme';
 import { setIcon, saveDesktop } from '../shell/desktop';
@@ -177,7 +177,7 @@ const explorer = {
         apps.notepad._mountedFileHandle = fileObj._handle;
         apps.notepad._dirty = false;
         apps.notepad._loading = true;
-        if ($('#taskbar>.notepad').length != 0) {
+        if (hasTaskbarItem('notepad')) {
           $('#win-notepad>.text-box')[0].innerText = text;
           if ($('.window.notepad').hasClass('min')) minwin('notepad');
           focwin('notepad');

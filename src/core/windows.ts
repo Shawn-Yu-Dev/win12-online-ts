@@ -2,10 +2,24 @@ import { $, page } from '../core/dom';
 import { apps } from '../core/app-registry';
 import { state } from '../core/state';
 import { nomax } from '../data/app-icons';
-import { syncTaskbarLayout } from './taskbar-layout';
 import { closeVideo } from '../core/video';
 
 // 窗口操作模块
+
+/** Taskbar operations needed by window lifecycle; implemented by shell/taskbar. */
+export interface WindowTaskbar {
+  has(name: string): boolean;
+  remove(name: string): void;
+  setMinimized(name: string, minimized: boolean): void;
+  setFocused(name: string, focused: boolean): void;
+  clearFocus(): void;
+}
+
+let windowTaskbar: WindowTaskbar | null = null;
+
+export function bindWindowTaskbar(taskbar: WindowTaskbar): void {
+  windowTaskbar = taskbar;
+}
 
 /** Direction handled by the resize knobs rendered in the window template. */
 export type ResizeDirection =
@@ -66,11 +80,7 @@ export function hidewin(name: string, arg: WindowTarget = 'window'): void {
     closeVideo();
   }
   if (arg == 'window') {
-    $('#taskbar>.' + name).remove();
-    syncTaskbarLayout();
-    setTimeout(() => {
-      syncTaskbarLayout();
-    }, 80);
+    windowTaskbar?.remove(name);
   }
   setTimeout(() => {
     $('.window.' + name).removeClass('show-begin');
@@ -188,7 +198,7 @@ export function minwin(name: string): void {
     $('.window.' + name).addClass('show-begin');
     focwin(name);
     setTimeout(() => {
-      $('#taskbar>.' + name).removeClass('min');
+      windowTaskbar?.setMinimized(name, false);
       $('.window.' + name).removeClass('min');
       if ($('.window.' + name).hasClass('min-max')) {
         $('.window.' + name).addClass('max');
@@ -207,7 +217,7 @@ export function minwin(name: string): void {
     }
     $('.window.' + name).removeClass('foc');
     $('.window.' + name).removeClass('max');
-    $('#taskbar>.' + name).addClass('min');
+    windowTaskbar?.setMinimized(name, true);
     $('.window.' + name).addClass('min');
     $('.window.' + name).removeClass('notrans');
     removeWindowFromOrder(name);
@@ -364,8 +374,7 @@ export function windowIsOpen(name: string): boolean {
   return (
     typeof name == 'string' &&
     name.length > 0 &&
-    ($('.window.' + name).hasClass('show-begin') ||
-      $('#taskbar>.' + name).length > 0)
+    ($('.window.' + name).hasClass('show-begin') || !!windowTaskbar?.has(name))
   );
 }
 export function removeWindowFromOrder(name: string): void {
@@ -388,7 +397,7 @@ export function normalizeWindowOrder(): void {
   }
 }
 export function clearWindowFocus(): void {
-  $('#taskbar>.foc').removeClass('foc');
+  windowTaskbar?.clearFocus();
   $('.window.foc').removeClass('foc');
 }
 export function orderwin(): void {
@@ -622,7 +631,7 @@ export function focwin(name: string, arg: WindowTarget = 'window'): boolean {
   removeWindowFromOrder(name);
   wo.splice(0, 0, name);
   if (arg == 'window') {
-    $('#taskbar>.' + name).addClass('foc');
+    windowTaskbar?.setFocused(name, true);
   }
   orderwin();
   $('.window.' + name).addClass('foc');
