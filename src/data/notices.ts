@@ -18,11 +18,11 @@ export const nts: Record<string, NoticeDefinition> = {
   },
   about: {
     cnt: lang(
-      `<p class="tit">${isTauriApp() ? '关于 Win12-desktop' : 'Win12 网页版'}</p>
-            <p>${isTauriApp() ? 'Win12-desktop 是 Win12 网页版的桌面应用版本，' : 'Win12 网页版是一个开放源项目，'}<br />
+      `<p class="tit">${isTauriApp() ? '关于 Win12-desktop' : 'Win12 Online (TS)'}</p>
+            <p>${isTauriApp() ? 'Win12-desktop 是 Win12 网页版的桌面应用版本，' : 'Win12 Online (TypeScript) 是原版 Win12 Online 的 TypeScript + Vite 重构版，'}<br />
             希望让用户在网络上预先体验 Windows 12,<br />
             内容可能与 Windows 12 正式版本不一致。<br />
-            使用标准网络技术，例如 HTML, CSS 和 JS<br />
+            使用标准网络技术，例如 HTML, CSS 和 TypeScript<br />
             此项目绝不附属于微软，且不应与微软操作系统或产品混淆，<br />
             这也不是 Windows365 cloud PC<br />
             本项目中微软、Windows 和其他示范产品是微软公司的商标<br />

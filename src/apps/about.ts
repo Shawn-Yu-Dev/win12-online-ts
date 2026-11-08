@@ -64,7 +64,9 @@ interface GitHubContributor {
 
 const about = {
   repo: () => {
-    return isTauriApp() ? 'win12-online/win12-desktop' : 'win12-online/win12';
+    return isTauriApp()
+      ? 'win12-online/win12-desktop'
+      : 'Shawn-Yu-Dev/win12-online-ts';
   },
   contentSuffix: () => {
     return isTauriApp() ? 'tauri' : 'web';
@@ -101,10 +103,10 @@ const about = {
       /[&<>"']/g,
       (ch) =>
         ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
+          '&': '&' + 'amp;',
+          '<': '&' + 'lt;',
+          '>': '&' + 'gt;',
+          '"': '&' + 'quot;',
           "'": '&#39;',
         })[ch],
     );
